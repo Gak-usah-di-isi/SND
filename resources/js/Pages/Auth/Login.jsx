@@ -23,9 +23,9 @@ export default function Login({ conferenceTitle, conferenceAbbreviation, logoPat
   };
 
   return (
-    <AuthLayout tagline={`${conferenceTitle} — ${conferenceAbbreviation}`}>
+    <AuthLayout tagline={`${conferenceTitle || 'Seminar Nasional Berdampak'} — ${conferenceAbbreviation || 'SND'}`}>
       <div className="text-center">
-        <img src={logoPath} alt="Logo ICASVE" className="inline-block mb-2 h-14 w-auto object-contain" />
+        <img src={logoPath} alt={`Logo ${conferenceAbbreviation || 'SND'}`} className="inline-block mb-2 h-14 w-auto object-contain" />
       </div>
       <h3 className="flex justify-center items-center text-2xl font-bold my-3 mt-5">
         Log in into your account
@@ -114,7 +114,7 @@ export default function Login({ conferenceTitle, conferenceAbbreviation, logoPat
       </form>
 
       <div className="flex gap-2 text-base opacity-90 mt-6 items-center justify-center">
-        <p>New to ICASVE?</p>
+        <p>New to {conferenceAbbreviation || 'SND'}?</p>
         <Link href="/register" className="text-[#db2896] text-sm font-medium">
           Create an account
         </Link>

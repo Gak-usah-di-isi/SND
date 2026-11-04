@@ -6,11 +6,11 @@ import IcasveSidebar from '../../../Pages/layout/IcasveSidebar';
 import IcasveTopbar from '../../../Pages/layout/IcasveTopbar';
 import SidebarContentUser from '../../../Pages/layout/SidebarItemsUser';
 
-const PRESENTER_ROLES = ['indonesia-presenter', 'foreign-presenter'];
+const PRESENTER_ROLES = ['presenter', 'indonesia-presenter', 'foreign-presenter'];
 
 function Layout({ currentPath, children }) {
   const { dark } = useTheme();
-  const { authRoles, canAccessFinalPaper, isArchiveMode, viewingYear, activeYear } = usePage().props;
+  const { authRoles, canAccessFinalPaper, isArchiveMode, viewingYear, activeYear, conferenceAbbreviation } = usePage().props;
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
 
   const showAbstract = (authRoles ?? []).some(role => PRESENTER_ROLES.includes(role));
@@ -49,7 +49,7 @@ function Layout({ currentPath, children }) {
                 <div className="flex items-center gap-2.5">
                   <Icon icon="solar:archive-outline" width={20} style={{ color: '#D97706' }} />
                   <span style={{ fontSize: 13.5, color: '#92400E' }}>
-                    You are viewing the <strong>ICASVE {viewingYear}</strong> archive. Data is read-only —
+                    You are viewing the <strong>{conferenceAbbreviation || 'SND'} {viewingYear}</strong> archive. Data is read-only —
                     to submit an abstract or upload files, please return to the active year.
                   </span>
                 </div>

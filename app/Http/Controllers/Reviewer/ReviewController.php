@@ -18,7 +18,7 @@ class ReviewController extends Controller
     public function index()
     {
         $reviewerId = auth()->id();
-        $abstracts = AbstractModel::with('symposium')
+        $abstracts = AbstractModel::with(['sdgs', 'symposium'])
             ->whereHas('abstractReviews', function ($query) use ($reviewerId) {
                 $query->where('reviewer_id', $reviewerId);
             })
@@ -33,7 +33,7 @@ class ReviewController extends Controller
     public function reviewCompleted()
     {
         $reviewerId = auth()->id();
-        $abstracts = AbstractModel::with('symposium')
+        $abstracts = AbstractModel::with(['sdgs', 'symposium'])
             ->whereHas('abstractReviews', function ($query) use ($reviewerId) {
                 $query->where('reviewer_id', $reviewerId);
             })
@@ -47,7 +47,7 @@ class ReviewController extends Controller
 
     public function showReviewForm(AbstractModel $abstract)
     {
-        $abstract->load('symposium');
+        $abstract->load(['sdgs', 'symposium']);
         $formattedAuthors = $this->formatAuthors($abstract->authors);
         $formattedAffiliations = $this->formatAffiliations($abstract->affiliations);
         $abstractReview = AbstractReview::where('abstract_id', $abstract->id)

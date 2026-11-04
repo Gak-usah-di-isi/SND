@@ -30,14 +30,15 @@ const SidebarContentAdmin = [
   },
   {
     id: 3,
-    name: 'SYMPOSIUM',
+    name: 'SDGs & TEMA',
     items: [
       {
-        heading: 'SYMPOSIUM',
+        heading: 'SDGs & TEMA',
         children: [
-          { name: 'Symposiums',   icon: 'solar:window-frame-outline', id: uniqueId(), url: '/admin/symposium' },
-          { name: 'Presentation Types', icon: 'solar:presentation-graph-outline', id: uniqueId(), url: '/admin/presentation-type' },
-          { name: 'Abstracts Book', icon: 'solar:notebook-outline',     id: uniqueId(), url: '/admin/abstract-book' },
+          { name: 'Tema SDGs',          icon: 'solar:leaf-outline',                   id: uniqueId(), url: '/admin/sdgs' },
+          { name: 'Symposiums',         icon: 'solar:window-frame-outline',           id: uniqueId(), url: '/admin/symposium' },
+          { name: 'Presentation Types', icon: 'solar:presentation-graph-outline',     id: uniqueId(), url: '/admin/presentation-type' },
+          { name: 'Abstracts Book',     icon: 'solar:notebook-outline',               id: uniqueId(), url: '/admin/abstract-book' },
         ],
       },
     ],

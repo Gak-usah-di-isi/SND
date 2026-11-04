@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Inertia\Middleware;
 use App\Models\Upload;
 use App\Models\Year;
+use App\Models\ConferenceSetting;
 use App\Support\ViewingYear;
 use Illuminate\Support\Str;
 
@@ -45,6 +46,18 @@ class HandleInertiaRequests extends Middleware
             'logoPath'   => function () {
                 $logo = Upload::currentForType('logo');
                 return $logo ? asset('storage/' . $logo->file_path) : null;
+            },
+            'authBgPath' => function () {
+                $bg = Upload::currentForType('auth_background');
+                return $bg ? asset('storage/' . $bg->file_path) : asset('images/voks.webp');
+            },
+            'conferenceTitle' => function () {
+                $setting = ConferenceSetting::first();
+                return $setting->conference_title ?? 'Seminar Nasional Berdampak';
+            },
+            'conferenceAbbreviation' => function () {
+                $setting = ConferenceSetting::first();
+                return $setting->conference_abbreviation ?? 'SND';
             },
             'authUser'   => fn () => $request->user()?->only('name', 'email'),
             'authRoles'  => fn () => $request->user()?->roles->pluck('name') ?? [],

@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\ReviewerController;
 use App\Http\Controllers\Admin\SymposiumController;
+use App\Http\Controllers\Admin\SdgController;
 use App\Http\Controllers\AbstractController;
 use App\Http\Controllers\Admin\SummaryController;
 use App\Http\Controllers\FullPaperController;
@@ -236,6 +237,7 @@ Route::name('admin.')->prefix('admin')->namespace('App\Http\Controllers\Admin')-
     Route::put('reviewer/{id}/toggle-status', [ReviewerController::class, 'toggleStatus'])->name('reviewer.toggleStatus');
     Route::get('reviewer-excel', [ReviewerController::class, 'export'])->name('reviewer.export');
     Route::resource('symposium', 'SymposiumController');
+    Route::resource('sdgs', SdgController::class);
     Route::resource('presentation-type', 'PresentationTypeController');
     Route::resource('abstract', 'AbstractsController');
     Route::resource('oral', 'OralController');

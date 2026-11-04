@@ -1,3 +1,5 @@
+import { usePage } from '@inertiajs/react';
+
 function LeftSidebarPart({ tagline }) {
   return (
     <div className="flex xl:justify-start justify-center xl:ps-32 xl:pt-28 h-screen items-start z-10 relative">
@@ -10,13 +12,16 @@ function LeftSidebarPart({ tagline }) {
   );
 }
 
-export default function AuthLayout({ tagline, children }) {
+export default function AuthLayout({ tagline, bgImage, children }) {
+  const { authBgPath } = usePage().props;
+  const background = bgImage || authBgPath || '/images/voks.webp';
+
   return (
     <div className="relative overflow-hidden h-screen">
       <div
         className="grid grid-cols-12 gap-3 h-full"
         style={{
-          backgroundImage: "url('/images/voks.webp')",
+          backgroundImage: `url('${background}')`,
           backgroundSize: 'cover',
           backgroundPosition: 'center',
         }}

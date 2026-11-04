@@ -94,9 +94,28 @@ export default function EditorReviewAbstractFormPage({ abstract, abstractReview,
           </div>
 
           {abstract.keyword && (
-            <p style={{ fontSize: 13.5, color: '#374151', fontFamily: 'Manrope,sans-serif', margin: 0 }}>
+            <p style={{ fontSize: 13.5, color: '#374151', fontFamily: 'Manrope,sans-serif', margin: '0 0 16px' }}>
               <strong>Keyword:</strong> {abstract.keyword}
             </p>
+          )}
+
+          {abstract.sdgs && abstract.sdgs.length > 0 && (
+            <div style={{ borderTop: '1px solid #E2E8F0', paddingTop: 16 }}>
+              <p style={{ fontSize: 12.5, fontWeight: 700, color: '#6B7280', textTransform: 'uppercase', margin: '0 0 8px' }}>
+                Tema SDGs:
+              </p>
+              <div className="flex items-center gap-1.5 flex-wrap">
+                {abstract.sdgs.map(s => (
+                  <span
+                    key={s.id}
+                    className="text-xs px-2.5 py-1 rounded-md text-white font-semibold"
+                    style={{ background: s.color || '#0152EA', fontFamily: 'Manrope,sans-serif' }}
+                  >
+                    {s.code}: {s.name_id || s.name_en}
+                  </span>
+                ))}
+              </div>
+            </div>
           )}
         </div>
 

@@ -20,6 +20,7 @@ class DashboardController extends Controller
         $roles = $user->roles->pluck('name')->toArray();
 
         $participants = [
+            'presenter',
             'indonesia-presenter',
             'foreign-presenter',
             'indonesia-participants',
@@ -79,6 +80,7 @@ class DashboardController extends Controller
 
         $user = User::with([
             'abstracts' => fn ($q) => $q->when($viewingYear, fn ($qq) => $qq->whereYear('created_at', $viewingYear)),
+            'abstracts.sdgs',
             'abstracts.symposium',
             'abstracts.fullPaper.fullPaperReviews.reviewer',
             'filePayments' => fn ($q) => $q->when($viewingYear, fn ($qq) => $qq->where('year', $viewingYear)),
@@ -95,9 +97,12 @@ class DashboardController extends Controller
         $fullPaper = $firstAbstract ? $firstAbstract->fullPaper : null;
         $isFullPaperAccepted = $fullPaper && $fullPaper->status == 'accepted';
 
-        // Peringatan bayar hanya relevan di tahun aktif — saat melihat arsip,
-        // tidak ada lagi yang bisa dibayar.
+        $confSetting = \App\Models\ConferenceSetting::first();
+        $isPaymentEnabled = (bool) ($confSetting->is_payment_enabled ?? false);
+
+        // Peringatan bayar hanya jika sistem pembayaran aktif & peserta belum bayar
         $hasAcceptedWithoutPayment = !$isArchive
+            && $isPaymentEnabled
             && $user->abstracts->contains('status', 'accepted')
             && !$payment;
 
@@ -130,6 +135,7 @@ class DashboardController extends Controller
             'user' => $user,
             'isFullPaperAccepted' => $isFullPaperAccepted,
             'hasAcceptedWithoutPayment' => $hasAcceptedWithoutPayment,
+            'isPaymentEnabled' => $isPaymentEnabled,
             'commitmentLetterUrl' => $commitmentLetterUrl,
             'showParticipantCertificate' => $showParticipantCertificate,
             'showPresenterCertificate' => $showPresenterCertificate,

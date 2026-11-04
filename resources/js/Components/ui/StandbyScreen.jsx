@@ -3,7 +3,7 @@ import { Icon } from '@iconify/react';
 import { usePage, router } from '@inertiajs/react';
 
 export default function StandbyScreen({ isOpen, onClose }) {
-  const { authUser, authRoles, logoPath, activeYear } = usePage().props;
+  const { authUser, authRoles, logoPath, activeYear, conferenceAbbreviation } = usePage().props;
   const [time, setTime] = useState(new Date());
 
   // Update clock every second
@@ -79,7 +79,7 @@ export default function StandbyScreen({ isOpen, onClose }) {
         <div className="flex items-center gap-3">
           <img
             src={logoPath || '/images/logo.png'}
-            alt="ICASVE"
+            alt={conferenceAbbreviation || 'SND'}
             className="h-10 w-auto object-contain max-w-[200px] drop-shadow-sm"
             onError={(e) => {
               if (!e.currentTarget.src.endsWith('/images/logo.png')) {
@@ -88,7 +88,7 @@ export default function StandbyScreen({ isOpen, onClose }) {
             }}
           />
           <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-white/80 border border-slate-300/80 text-slate-700 shadow-sm backdrop-blur-md">
-            {activeYear ? `ICASVE ${typeof activeYear === 'object' && activeYear !== null ? activeYear.year : activeYear}` : 'Conference'}
+            {activeYear ? `${conferenceAbbreviation || 'SND'} ${typeof activeYear === 'object' && activeYear !== null ? activeYear.year : activeYear}` : (conferenceAbbreviation || 'SND')}
           </span>
         </div>
 

@@ -42,19 +42,6 @@ export function buildSidebarContentEditor(counts = {}, isEditor = true) {
     },
     {
       id: 3,
-      name: 'FULLPAPER REVIEW',
-      items: [
-        {
-          heading: 'FULLPAPER REVIEW',
-          children: [
-            { name: 'Review Fullpaper', icon: 'solar:document-outline',   id: '/reviewer/review-fullpaper',           url: '/reviewer/review-fullpaper',           badge: tone(counts.reviewFullpaper, 'red') },
-            { name: 'Paper Completed',  icon: 'solar:check-read-outline', id: '/reviewer/review-fullpaper-completed', url: '/reviewer/review-fullpaper-completed', badge: tone(counts.paperCompleted, 'green') },
-          ],
-        },
-      ],
-    },
-    {
-      id: 4,
       name: 'EDITOR: ABSTRACT',
       items: [
         {
@@ -70,28 +57,10 @@ export function buildSidebarContentEditor(counts = {}, isEditor = true) {
         },
       ],
     },
-    {
-      id: 5,
-      name: 'EDITOR: PAPER',
-      items: [
-        {
-          heading: 'EDITOR: PAPER',
-          children: [
-            { name: 'No Review',       icon: 'solar:close-circle-outline',            id: '/reviewer/editor-fullpaper/no-reviewer',   url: '/reviewer/editor-fullpaper/no-reviewer',   badge: tone(counts.paperNoReview, 'red') },
-            { name: 'Revision Req',    icon: 'solar:pen-outline',                     id: '/reviewer/editor-fullpaper/revision',       url: '/reviewer/editor-fullpaper/revision',       badge: tone(counts.paperRevision, 'amber') },
-            { name: 'No Decision',     icon: 'solar:hourglass-outline',               id: '/reviewer/editor-fullpaper/no-decision',    url: '/reviewer/editor-fullpaper/no-decision',    badge: tone(counts.paperNoDecision, 'cyan') },
-            { name: 'With Decision',   icon: 'solar:check-circle-outline',            id: '/reviewer/editor-fullpaper/with-decision',  url: '/reviewer/editor-fullpaper/with-decision',  badge: { count: counts.paperWithDecision ?? 0, tone: 'green' } },
-            { name: 'All Papers',      icon: 'solar:file-outline',                    id: '/reviewer/all-fullpaper',                   url: '/reviewer/all-fullpaper',                   badge: tone(counts.allPapers, 'blue') },
-            { name: 'Review Workload', icon: 'solar:checklist-minimalistic-outline',  id: '/reviewer/fullpaper-workload',              url: '/reviewer/fullpaper-workload' },
-          ],
-        },
-      ],
-    },
   ];
 
   // Reviewer biasa hanya melihat menu review miliknya sendiri — grup
-  // "EDITOR: ABSTRACT" & "EDITOR: PAPER" khusus editor/chief-editor,
-  // sama seperti pemisahan @role di resources/views/layouts/partials/sidebar.blade.php.
+  // "EDITOR: ABSTRACT" khusus editor/chief-editor.
   return isEditor
     ? sections
     : sections.filter(s => !s.name.startsWith('EDITOR:'));

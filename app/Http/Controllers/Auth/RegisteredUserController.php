@@ -32,10 +32,7 @@ class RegisteredUserController extends Controller
     public function create(): Response
     {
         $roleOrder = [
-            'indonesia-presenter',
-            'foreign-presenter',
-            'indonesia-participants',
-            'foreign-participants',
+            'presenter',
             'reviewer',
         ];
 
@@ -47,14 +44,15 @@ class RegisteredUserController extends Controller
             })
             ->values();
         $conferenceSetting = ConferenceSetting::first();
-        $openRegistration = $conferenceSetting->open_registration ?? false;
-        $conferenceTitle = optional($conferenceSetting)->conference_title ?? 'The 3rd International Conference on Applied Science for Vocational Education';
-        $conferenceAbbreviation = optional($conferenceSetting)->conference_abbreviation ?? 'ICASVE2025';
+        $openRegistration = $conferenceSetting->open_registration ?? true;
+        $enableStudentRegistration = (bool) ($conferenceSetting->enable_student_registration ?? true);
+        $conferenceTitle = optional($conferenceSetting)->conference_title ?? 'Seminar Nasional Berdampak';
+        $conferenceAbbreviation = optional($conferenceSetting)->conference_abbreviation ?? 'SND';
         $logo = Upload::currentForType('logo');
         $logoPath = $logo ? asset('storage/' . $logo->file_path) : asset('img/Logo_ICASVE_rmbg.png');
         $countries = Country::orderBy('name', 'asc')->get(['id', 'name']);
 
-        return Inertia::render('Auth/Register', compact('roles', 'openRegistration', 'conferenceTitle', 'conferenceAbbreviation', 'logoPath', 'countries'));
+        return Inertia::render('Auth/Register', compact('roles', 'openRegistration', 'enableStudentRegistration', 'conferenceTitle', 'conferenceAbbreviation', 'logoPath', 'countries'));
     }
 
     /**
@@ -91,7 +89,7 @@ class RegisteredUserController extends Controller
             'attendance' => $validatedData['attendance'],
             'country' => $validatedData['country'],
             'password' => Hash::make($validatedData['password']),
-            'is_student' => (bool) ($request->is_student ?? false),
+            'is_student' => (bool) (($conferenceSetting->enable_student_registration ?? true) && ($request->is_student ?? false)),
         ]);
 
         $role = Role::findOrFail($validatedData['role_id']);

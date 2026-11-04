@@ -21,10 +21,6 @@ return [
             'certificates' => 'u',
             'profile' => 'r,u',
         ],
-        'chief-editor' => [
-            'abstracts' => 'r,u',
-            'profile' => 'r,u',
-        ],
         'editor' => [
             'abstracts' => 'r,u',
             'profile' => 'r,u',
@@ -33,47 +29,17 @@ return [
             'abstracts' => 'r,u',
             'profile' => 'r,u',
         ],
-        'indonesia-presenter' => [
-            'profile' => 'r,u',
-            'payments' => 'c',
+        'presenter' => [
             'abstracts' => 'c,r,u,d',
-        ],
-        'foreign-presenter' => [
-            'profile' => 'r,u',
             'payments' => 'c',
-            'abstracts' => 'c,r,u,d',
-        ],
-        'indonesia-participants' => [
             'profile' => 'r,u',
-            'payments' => 'c',
-            'abstracts' => 'c,r,u,d',
         ],
-        'foreign-participants' => [
-            'profile' => 'r,u',
-            'payments' => 'c',
-            'abstracts' => 'c,r,u,d',
-        ],
-        'landing-editor' => [
-            'speakers' => 'c,r,u,d',
-        ],
-        'sekretaris' => [
+        'executive' => [
             'participants' => 'r',
             'reviewer' => 'r',
             'payments' => 'r',
             'symposiums' => 'r',
             'abstracts' => 'r',
-            'profile' => 'r,u',
-        ],
-        'humas' => [
-            'participants' => 'r',
-            'reviewer' => 'r',
-            'payments' => 'r',
-            'symposiums' => 'r',
-            'abstracts' => 'r',
-            'profile' => 'r,u',
-        ],
-        'bendahara' => [
-            'payments' => 'r,u',
             'profile' => 'r,u',
         ],
     ],

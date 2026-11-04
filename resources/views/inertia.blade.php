@@ -14,10 +14,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     @php
         $activeYear = \App\Models\Year::where('is_active', true)->value('year');
+        $confSetting = \App\Models\ConferenceSetting::first();
+        $confAbbr = $confSetting->conference_abbreviation ?? 'SND';
         $faviconUpload = \App\Models\Upload::currentForType('logo');
         $faviconPath = $faviconUpload ? asset('storage/' . $faviconUpload->file_path) : asset('favicon.ico');
     @endphp
-    <title>{{ $activeYear ? 'ICASVE ' . $activeYear : 'ICASVE' }}</title>
+    <title>{{ $activeYear ? $confAbbr . ' ' . $activeYear : $confAbbr }}</title>
     <link rel="icon" href="{{ $faviconPath }}">
     @viteReactRefresh
     @vite(['resources/css/template.css', 'resources/js/template.jsx'])

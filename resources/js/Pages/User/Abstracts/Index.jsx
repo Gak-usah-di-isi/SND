@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { router, Link, usePage } from '@inertiajs/react';
 import { Icon } from '@iconify/react';
 import UserPageLayout from '../../../Components/ui/shared/UserPageLayout';
@@ -22,13 +22,8 @@ const CARD = { background: '#fff', borderRadius: 12, boxShadow: '0px 2px 4px -1p
 const MAX_WORDS = 350;
 
 const PRESENTATION_OPTIONS = [
-  { value: 'Oral presentation', label: 'Oral Presentation' },
-  { value: 'Poster presentation', label: 'Poster Presentation' },
-];
-
-const PUBLICATION_OPTIONS = [
-  { value: 'Journal Publication', label: 'Journal Publication' },
-  { value: 'Proceedings Indexed in EBSCO', label: 'Proceedings Indexed in EBSCO' },
+  { value: 'Oral presentation', label: 'Oral Presentation (Presentasi Lisan)' },
+  { value: 'Poster presentation', label: 'Poster Presentation (Poster)' },
 ];
 
 const FORMAT_GUIDE_ROWS = [
@@ -41,107 +36,21 @@ const FORMAT_GUIDE_ROWS = [
   { format: 'LaTeX display math', code: '\\[ ... \\]', example: 'The wave function is normalized so that \\[ \\int_0^{\\infty} \\psi^*_{1s} \\psi_{1s} d\\tau = 1 \\]', result: 'The wave function is normalized so that \\[ \\int_0^{\\infty} \\psi^*_{1s} \\psi_{1s} d\\tau = 1 \\]' },
 ];
 
-/* ---------- Upload Modal (full paper / commitment letter) ---------- */
-function UploadFileModal({ open, title, description, accept, fieldName, errorKey, url, onClose, toast, maxSizeText = 'Max 10MB' }) {
-  const { errors } = usePage().props;
-  const [file, setFile] = useState(null);
-  const [dragging, setDragging] = useState(false);
-  const [submitting, setSubmitting] = useState(false);
-  const fileRef = useRef(null);
-
-  if (!open) return null;
-
-  const handleClose = () => {
-    if (submitting) return;
-    setFile(null);
-    onClose();
-  };
-
-  const handleSubmit = () => {
-    if (!file) return;
-    const data = new FormData();
-    data.append(fieldName, file);
-
-    setSubmitting(true);
-    router.post(url, data, {
-      forceFormData: true,
-      preserveState: true,
-      preserveScroll: true,
-      onSuccess: () => {
-        setFile(null);
-        onClose();
-      },
-      onError: () => toast.error('Failed to upload file. Please check the selected file.'),
-      onFinish: () => setSubmitting(false),
-    });
-  };
-
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4">
-      <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl">
-        <p className="text-base font-semibold text-gray-800 mb-1">{title}</p>
-        {description && <p className="text-sm text-gray-500 mb-4">{description}</p>}
-
-        <div
-          onClick={() => fileRef.current?.click()}
-          onDragOver={(e) => { e.preventDefault(); setDragging(true); }}
-          onDragLeave={() => setDragging(false)}
-          onDrop={(e) => { e.preventDefault(); setDragging(false); setFile(e.dataTransfer.files[0]); }}
-          className="flex flex-col items-center gap-2 cursor-pointer"
-          style={{
-            padding: '20px 16px', borderRadius: 10,
-            border: `2px dashed ${dragging ? '#0152EA' : file ? '#10B981' : '#E2E8F0'}`,
-            background: dragging ? 'rgba(1,82,234,0.04)' : file ? 'rgba(16,185,129,0.04)' : '#fff',
-          }}
-        >
-          <Icon icon={file ? 'solar:check-circle-outline' : 'solar:upload-minimalistic-outline'} width={28} style={{ color: file ? '#10B981' : '#9CA3AF' }} />
-          <span className="text-sm" style={{ color: file ? '#10B981' : '#6B7280' }}>
-            {file ? file.name : 'Choose or drag file here'}
-          </span>
-          <span className="text-xs text-gray-400">Format: {accept.replace(/\./g, '').toUpperCase()} — {maxSizeText}</span>
-          <input ref={fileRef} type="file" accept={accept} className="hidden" onChange={(e) => setFile(e.target.files?.[0] ?? null)} />
-        </div>
-        {errors?.[errorKey] && <p className="text-xs text-red-500 mt-2">{errors[errorKey]}</p>}
-
-        <div className="flex items-center justify-end gap-2 mt-6">
-          <button
-            type="button"
-            onClick={handleClose}
-            disabled={submitting}
-            className="px-4 py-2 text-sm rounded-md border border-gray-200 text-gray-600 hover:bg-gray-50 cursor-pointer disabled:cursor-not-allowed disabled:opacity-50"
-          >
-            Cancel
-          </button>
-          <button
-            type="button"
-            onClick={handleSubmit}
-            disabled={submitting || !file}
-            className="px-4 py-2 text-sm rounded-md text-white cursor-pointer disabled:cursor-not-allowed disabled:opacity-50"
-            style={{ background: '#0152EA' }}
-          >
-            {submitting ? 'Uploading...' : 'Upload'}
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-/* ---------- Formatting Guideline (persis panduan di blade lama) ---------- */
+/* ---------- Formatting Guideline ---------- */
 function FormatGuide() {
   return (
     <div id="formatguide" style={{ ...CARD, marginTop: 24 }}>
       <p className="text-sm text-gray-500 text-center italic mb-2">
-        The following rules in abstract formatting is <strong>OPTIONAL</strong>, but they can make your abstract more readable.
+        Panduan format teks berikut bersifat <strong>OPSIONAL</strong>, digunakan jika abstrak Anda memerlukan simbol ilmiah atau rumus.
       </p>
       <h2 style={{ fontSize: 16, fontWeight: 700, color: '#1F2A3D', fontFamily: 'Manrope, sans-serif', textAlign: 'center', marginBottom: 16 }}>
-        ABSTRACT FORMATTING GUIDELINE
+        PANDUAN FORMAT TEKS ABSTRAK
       </h2>
       <div className="overflow-x-auto">
         <table className="w-full text-sm" style={{ borderCollapse: 'collapse' }}>
           <thead>
             <tr style={{ background: 'rgba(1,82,234,0.08)' }}>
-              {['Format', 'Code', 'Example', 'Result'].map(h => (
+              {['Format', 'Kode', 'Contoh', 'Hasil'].map(h => (
                 <th key={h} className="px-3 py-2 text-left font-semibold" style={{ color: '#1F2A3D', border: '1px solid #E2E8F0' }}>{h}</th>
               ))}
             </tr>
@@ -157,22 +66,21 @@ function FormatGuide() {
             ))}
           </tbody>
         </table>
-        <a
-          href="http://www.hostmath.com/"
-          target="_blank"
-          rel="noreferrer"
-          className="inline-block mt-4 px-4 py-2 text-sm font-medium text-white"
-          style={{ background: '#EF4444', borderRadius: 8, textDecoration: 'none', fontFamily: 'Manrope,sans-serif' }}
-        >
-          Online LaTeX equation tool
-        </a>
       </div>
     </div>
   );
 }
 
 /* ---------- Create / Edit Form ---------- */
-function AbstractFormView({ mode, abstract, symposiums, presentationTypes = [], enablePublicationSelection = true, onCancel, toast }) {
+function AbstractFormView({
+  mode,
+  abstract,
+  symposiums = [],
+  presentationTypes = [],
+  sdgs = [],
+  onCancel,
+  toast,
+}) {
   const { errors } = usePage().props;
   const isEdit = mode === 'edit';
 
@@ -187,12 +95,12 @@ function AbstractFormView({ mode, abstract, symposiums, presentationTypes = [], 
     title: abstract?.title ?? '',
     symposium_id: abstract?.symposium_id ?? '',
     presentation_type: abstract?.presentation_type ?? (presentationTypes?.[0]?.name || 'Oral presentation'),
-    publication: abstract?.publication ?? '',
     authors: abstract?.authors ?? '',
     affiliations: abstract?.affiliations ?? '',
     corresponding_email: abstract?.corresponding_email ?? '',
     abstract: abstract?.abstract ?? '',
     keyword: abstract?.keyword ?? '',
+    sdg_ids: abstract?.sdgs ? abstract.sdgs.map(s => s.id) : [],
   });
 
   const symposiumOptions = symposiums.map(s => ({ value: s.id, label: s.name }));
@@ -204,9 +112,24 @@ function AbstractFormView({ mode, abstract, symposiums, presentationTypes = [], 
 
   const setField = (key) => (e) => setForm(prev => ({ ...prev, [key]: e.target.value }));
 
+  const toggleSdg = (id) => {
+    setForm(prev => {
+      const exists = prev.sdg_ids.includes(id);
+      const next = exists
+        ? prev.sdg_ids.filter(x => x !== id)
+        : [...prev.sdg_ids, id];
+      return { ...prev, sdg_ids: next };
+    });
+  };
+
   const [submitting, setSubmitting] = useState(false);
 
   const handleSubmit = () => {
+    if (form.sdg_ids.length === 0) {
+      toast.error('Harap pilih minimal 1 tema SDGs yang sesuai.');
+      return;
+    }
+
     setSubmitting(true);
     const options = {
       preserveState: true,
@@ -215,7 +138,7 @@ function AbstractFormView({ mode, abstract, symposiums, presentationTypes = [], 
         onCancel();
       },
       onError: () => {
-        toast.error('Please check your form input.');
+        toast.error('Terjadi kesalahan. Silakan periksa kembali input formulir Anda.');
       },
       onFinish: () => setSubmitting(false),
     };
@@ -232,96 +155,151 @@ function AbstractFormView({ mode, abstract, symposiums, presentationTypes = [], 
       <div className="flex items-center gap-3 mb-5">
         <BackButton onClick={onCancel} />
         <h1 style={{ fontSize: 28, fontWeight: 700, color: '#1F2A3D', fontFamily: 'Manrope, sans-serif' }}>
-          {isEdit ? 'Edit Abstract' : 'Abstract Submission'}
+          {isEdit ? 'Edit / Revisi Abstrak' : 'Unggah Abstrak Baru'}
         </h1>
       </div>
 
       <Card className="mb-4">
         <p style={{ fontSize: 13.5, color: '#6B7280', fontFamily: 'Manrope,sans-serif', margin: 0 }}>
-          If you require special formatting in your abstract title or body, please see the{' '}
-          <a href="#formatguide" style={{ color: '#0152EA', textDecoration: 'underline' }}>formatting guide below</a>.
+          Pastikan data penulis, judul, dan isi abstrak diisi dengan lengkap. Panduan rumus dan simbol teks ilmiah dapat dilihat pada{' '}
+          <a href="#formatguide" style={{ color: '#0152EA', textDecoration: 'underline' }}>panduan di bawah</a>.
         </p>
       </Card>
 
       <Card>
         <h2 style={{ fontSize: 16, fontWeight: 600, color: '#1F2A3D', fontFamily: 'Manrope, sans-serif', marginBottom: 16 }}>
-          {isEdit ? 'Edit Abstract Details' : 'Abstract Details'}
+          {isEdit ? 'Formulir Perubahan Abstrak' : 'Detail Pengajuan Abstrak'}
         </h2>
 
         <div className="flex flex-col gap-4">
           <FloatInput
             id="title"
-            label="Paper Title *"
+            label="Judul Makalah / Paper Title *"
             value={form.title}
             onChange={setField('title')}
             error={Boolean(errors?.title)}
             helperText={errors?.title}
           />
 
-          <FloatSelect
-            id="symposium_id"
-            label="Conference Topic *"
-            options={symposiumOptions}
-            value={form.symposium_id}
-            onChange={(val) => setForm(prev => ({ ...prev, symposium_id: val }))}
-            placeholder="-- Select Conference Topic --"
-            error={Boolean(errors?.symposium_id)}
-            helperText={errors?.symposium_id}
-          />
+          {symposiumOptions.length > 0 && (
+            <FloatSelect
+              id="symposium_id"
+              label="Topik Konferensi (Opsional)"
+              options={symposiumOptions}
+              value={form.symposium_id}
+              onChange={(val) => setForm(prev => ({ ...prev, symposium_id: val }))}
+              placeholder="-- Pilih Topik Konferensi --"
+              error={Boolean(errors?.symposium_id)}
+              helperText={errors?.symposium_id}
+            />
+          )}
+
+          {/* ---------- SDGs Checkbox Selection (Multiple Choice) ---------- */}
+          <div
+            className="p-4 rounded-xl border border-gray-200"
+            style={{ background: '#FAFBFD' }}
+          >
+            <div className="flex items-center justify-between flex-wrap gap-2 mb-1">
+              <label style={{ fontSize: 14, fontWeight: 700, color: '#1F2A3D', fontFamily: 'Manrope, sans-serif' }}>
+                Pilihan Tema SDGs (Dapat memilih lebih dari 1) *
+              </label>
+              <span
+                className="text-xs px-2.5 py-1 rounded-full font-bold"
+                style={{
+                  background: form.sdg_ids.length > 0 ? 'rgba(1,82,234,0.1)' : 'rgba(239,68,68,0.1)',
+                  color: form.sdg_ids.length > 0 ? '#0152EA' : '#EF4444',
+                  fontFamily: 'Manrope, sans-serif'
+                }}
+              >
+                {form.sdg_ids.length} SDG dipilih
+              </span>
+            </div>
+            <p style={{ fontSize: 12.5, color: '#6B7280', margin: '0 0 12px', fontFamily: 'Manrope, sans-serif' }}>
+              Pilihlah satu atau lebih dari 17 Tujuan Pembangunan Berkelanjutan (SDGs) yang relevan dengan topik makalah Anda:
+            </p>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5 max-h-[360px] overflow-y-auto p-1">
+              {sdgs.map(sdg => {
+                const isChecked = form.sdg_ids.includes(sdg.id);
+                return (
+                  <div
+                    key={sdg.id}
+                    onClick={() => toggleSdg(sdg.id)}
+                    className={`flex items-start gap-2.5 p-2.5 rounded-xl border transition-all cursor-pointer ${
+                      isChecked
+                        ? 'border-blue-500 bg-blue-50/70 shadow-sm ring-1 ring-blue-500'
+                        : 'border-gray-200 bg-white hover:bg-gray-50'
+                    }`}
+                  >
+                    <input
+                      type="checkbox"
+                      checked={isChecked}
+                      onChange={() => {}}
+                      className="mt-1 h-4 w-4 rounded text-blue-600 focus:ring-blue-500 cursor-pointer"
+                    />
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-1.5 mb-0.5">
+                        <span
+                          className="text-[11px] px-1.5 py-0.5 rounded font-bold text-white shrink-0"
+                          style={{ background: sdg.color || '#0152EA' }}
+                        >
+                          {sdg.code}
+                        </span>
+                        <span className="text-xs font-semibold text-gray-800 truncate" title={sdg.name_id || sdg.name_en}>
+                          {sdg.name_id || sdg.name_en}
+                        </span>
+                      </div>
+                      <p className="text-[11px] text-gray-400 truncate m-0">{sdg.name_en}</p>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+            {errors?.sdg_ids && (
+              <p className="text-xs text-red-500 mt-2 font-medium">{errors.sdg_ids}</p>
+            )}
+          </div>
 
           <FloatSelect
             id="presentation_type"
-            label="Presentation Type *"
+            label="Jenis Presentasi *"
             options={presentationOptions}
             value={form.presentation_type}
             onChange={(val) => setForm(prev => ({ ...prev, presentation_type: val }))}
-            placeholder="-- Select Presentation Type --"
+            placeholder="-- Pilih Jenis Presentasi --"
             error={Boolean(errors?.presentation_type)}
             helperText={errors?.presentation_type}
           />
 
-          {enablePublicationSelection && (
-            <FloatSelect
-              id="publication"
-              label="Publication *"
-              options={PUBLICATION_OPTIONS}
-              value={form.publication}
-              onChange={(val) => setForm(prev => ({ ...prev, publication: val }))}
-              placeholder="-- Select Publication Type --"
-              error={Boolean(errors?.publication)}
-              helperText={errors?.publication}
-            />
-          )}
-
           <FloatInput
             id="authors"
-            label="Author(s) *"
+            label="Nama Penulis / Author(s) *"
             value={form.authors}
             onChange={setField('authors')}
-            placeholder="Martin Karplus*[1], Werner Heisenberg[2], Ada Lovelace[2,3]"
+            placeholder="Contoh: Budi Santoso*[1], Siti Aminah[2], Ahmad Dahlan[1,2]"
             error={Boolean(errors?.authors)}
             helperText={errors?.authors}
           />
 
           <FloatInput
             id="affiliations"
-            label="Author Affiliations *"
+            label="Afiliasi / Instansi Penulis *"
             value={form.affiliations}
             onChange={setField('affiliations')}
             multiline
-            rows={5}
-            placeholder={'[1]Dept. of Chemistry, Brawijaya University, Malang, Indonesia\n[2]Dept. of Biology, University of Tokyo, Tokyo, Japan'}
+            rows={4}
+            placeholder={'[1] Fakultas Vokasi, Universitas Brawijaya, Malang, Indonesia\n[2] Departemen Teknik, Universitas Brawijaya, Malang, Indonesia'}
             error={Boolean(errors?.affiliations)}
             helperText={errors?.affiliations}
           />
 
           <FloatInput
             id="corresponding_email"
-            label="Corresponding Author's Email *"
+            label="Email Penulis Korespondensi *"
             type="email"
             value={form.corresponding_email}
             onChange={setField('corresponding_email')}
-            placeholder="user@example.com"
+            placeholder="penulis@ub.ac.id"
             error={Boolean(errors?.corresponding_email)}
             helperText={errors?.corresponding_email}
           />
@@ -329,12 +307,12 @@ function AbstractFormView({ mode, abstract, symposiums, presentationTypes = [], 
           <div>
             <FloatInput
               id="abstract"
-              label="Abstract *"
+              label="Isi Abstrak *"
               value={form.abstract}
               onChange={setField('abstract')}
               multiline
               rows={8}
-              placeholder="Please see formatting guidance below, if needed"
+              placeholder="Tuliskan latar belakang, tujuan, metode, hasil utama, dan kesimpulan singkat..."
               error={Boolean(errors?.abstract)}
               helperText={errors?.abstract}
             />
@@ -342,237 +320,160 @@ function AbstractFormView({ mode, abstract, symposiums, presentationTypes = [], 
               className="mt-1"
               style={{ fontSize: 12, fontFamily: 'Manrope,sans-serif', color: wordCount > MAX_WORDS ? '#EF4444' : '#9CA3AF' }}
             >
-              {wordCount} words (Max: {MAX_WORDS} words)
+              {wordCount} kata (Maksimal: {MAX_WORDS} kata)
             </p>
           </div>
 
           <FloatInput
             id="keyword"
-            label="Keywords *"
+            label="Kata Kunci / Keywords *"
             value={form.keyword}
             onChange={setField('keyword')}
-            placeholder="Artificial Intelligence (AI), Machine Learning (ML), Deep Learning (DL)"
+            placeholder="Contoh: Pendidikan Vokasi, SDGs, Pengabdian Masyarakat"
             error={Boolean(errors?.keyword)}
             helperText={errors?.keyword}
+          />
+
+          <FormActions
+            onCancel={onCancel}
+            onSubmit={handleSubmit}
+            isSubmitting={submitting}
+            submitText={isEdit ? 'Simpan & Kirim Revisi' : 'Simpan Abstrak'}
           />
         </div>
       </Card>
 
-      <div className="mt-6">
-        <FormActions
-          id="abstract-form"
-          cancelText="Cancel"
-          submitText={submitting ? 'Submitting...' : (isEdit ? 'Update' : 'Submit')}
-          onCancel={onCancel}
-          onSubmit={submitting ? undefined : handleSubmit}
-        />
-      </div>
-
       <FormatGuide />
-
-      <ToastContainer toasts={toast.toasts} onClose={toast.remove} />
     </>
   );
 }
 
-/* ---------- Avatar Initial (koresponden) ---------- */
-function EmailBadge({ email }) {
-  const initial = (email ?? '').split('@')[0].slice(0, 2).toUpperCase();
-  return (
-    <div style={{ width: 32, height: 32, borderRadius: '50%', background: '#0152EA', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-      <span style={{ fontSize: 11, fontWeight: 700, color: '#fff', fontFamily: 'Manrope,sans-serif' }}>{initial}</span>
-    </div>
-  );
-}
+/* ---------- Detail Header Card per Abstract ---------- */
+function DetailCard({ abstract, isPaymentEnabled, onEdit }) {
+  const isAccepted = abstract.status === 'accepted';
+  const isRevision = abstract.status === 'revision';
+  const isRejected = abstract.status === 'rejected';
 
-/* ---------- Detail Card (di atas tabel, per abstract) ---------- */
-function DetailCard({ abstract, openFullPaperUpload, onUploadFullPaper, onUploadCameraReady }) {
-  const { features } = usePage().props;
-  const loaAvailable = abstract.status === 'accepted' && abstract.user?.file_payment?.status === 'verified';
-  const showAbstractRevision = abstract.status === 'revision' && (abstract.reviewers?.length ?? 0) > 0;
-  const showFullPaperRevision = abstract.full_paper
-    && (abstract.full_paper.full_paper_reviews?.length ?? 0) > 0
-    && abstract.full_paper.status === 'revision';
-  const canUploadCameraReady = openFullPaperUpload
-    && abstract.status === 'accepted';
+  const hasPaid = abstract.user?.file_payment?.status === 'verified';
+  const canDownloadLoa = isAccepted && (!isPaymentEnabled || hasPaid);
 
   return (
     <div style={{ ...CARD, marginBottom: 16 }}>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div>
-          <p className="font-semibold text-gray-800 text-sm mb-1">Abstract</p>
-          <Link
-            href={`/abstracts/${abstract.route_key}`}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium"
-            style={{ color: '#0152EA', background: 'rgba(1,82,234,0.08)', borderRadius: 8, textDecoration: 'none' }}
-          >
-            <Icon icon="solar:document-text-outline" width={15} />
-            Detail
-          </Link>
+      <div className="flex items-center justify-between flex-wrap gap-2 mb-3">
+        <div className="flex items-center gap-2">
+          <StatusBadge label={capitalize(abstract.status)} />
+          <span className="text-xs text-gray-400">&bull; {abstract.presentation_type}</span>
         </div>
 
-        <div>
-          <p className="font-semibold text-gray-800 text-sm mb-1">Letter of Acceptance</p>
-          {loaAvailable ? (
+        <div className="flex items-center gap-2">
+          {canDownloadLoa && (
             <a
               href={`/abstracts/${abstract.id}/acceptance-pdf`}
               target="_blank"
               rel="noreferrer"
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium"
-              style={{ color: '#0152EA', background: 'rgba(1,82,234,0.08)', borderRadius: 8, textDecoration: 'none' }}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-white bg-green-600 rounded-lg hover:bg-green-700 transition"
+              style={{ textDecoration: 'none' }}
             >
-              <Icon icon="solar:diploma-verified-outline" width={15} />
-              LOA PDF
+              <Icon icon="solar:diploma-verified-outline" width={14} />
+              Unduh LoA (PDF)
             </a>
-          ) : (
-            <span className="text-sm text-gray-400">Not Available</span>
           )}
-        </div>
 
-        <div>
-          <p className="font-semibold text-gray-800 text-sm mb-1">Full Paper (Draft)</p>
-          {abstract.full_paper ? (
-            <>
-              <div className="flex items-center gap-2.5 flex-wrap">
-                <a href={`/storage/${abstract.full_paper.file_path}`} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1.5 text-sm font-medium" style={{ color: '#0152EA' }}>
-                  <Icon icon="solar:download-outline" width={16} />
-                  Download Full Paper
-                </a>
-                {openFullPaperUpload && ['revision', 'open'].includes(abstract.full_paper.status) && onUploadFullPaper && (
-                  <button
-                    type="button"
-                    onClick={() => onUploadFullPaper(abstract)}
-                    className="inline-flex items-center gap-1 px-2 py-0.5 text-xs font-semibold"
-                    style={{ color: '#0152EA', background: 'rgba(1,82,234,0.08)', borderRadius: 6, border: 'none', cursor: 'pointer' }}
-                  >
-                    <Icon icon="solar:upload-outline" width={13} />
-                    Re-upload
-                  </button>
-                )}
-              </div>
-              <p className="text-xs text-gray-400 mt-1">Submitted</p>
-              {abstract.full_paper.revised_file_path && (
-                <>
-                  <a href={`/storage/${abstract.full_paper.revised_file_path}`} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1.5 text-sm font-medium mt-2" style={{ color: '#F59E0B' }}>
-                    <Icon icon="solar:file-download-outline" width={16} />
-                    Download Revised
-                  </a>
-                  <p className="text-xs text-gray-400 mt-1">Revised</p>
-                </>
-              )}
-            </>
-          ) : openFullPaperUpload && onUploadFullPaper ? (
+          {isRevision && (
             <button
               type="button"
-              onClick={() => onUploadFullPaper(abstract)}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium"
-              style={{ color: '#0152EA', background: 'rgba(1,82,234,0.08)', borderRadius: 8, border: 'none', cursor: 'pointer' }}
+              onClick={() => onEdit(abstract)}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-white bg-amber-600 rounded-lg hover:bg-amber-700 transition cursor-pointer"
             >
-              <Icon icon="solar:upload-outline" width={15} />
-              Upload Full Paper
+              <Icon icon="solar:pen-outline" width={14} />
+              Kirim Revisi Abstrak
             </button>
-          ) : (
-            <p className="text-sm text-gray-400">No Full Paper Uploaded</p>
           )}
+
+          <Link
+            href={`/abstracts/${abstract.route_key}`}
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 transition"
+            style={{ textDecoration: 'none' }}
+          >
+            <Icon icon="solar:document-text-outline" width={14} />
+            Lihat Detail
+          </Link>
         </div>
-
-        {features?.commitment_letter && (
-          <div>
-            <p className="font-semibold text-gray-800 text-sm mb-1">Commitment Letter</p>
-            {abstract.full_paper?.commitment_letter_path ? (
-              <a href={`/storage/${abstract.full_paper.commitment_letter_path}`} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1.5 text-sm font-medium" style={{ color: '#0152EA' }}>
-                <Icon icon="solar:download-outline" width={16} />
-                Download Commitment Letter
-              </a>
-            ) : (
-              <span className="text-sm text-gray-400">Not Available</span>
-            )}
-          </div>
-        )}
-
-        <div>
-          <p className="font-semibold text-gray-800 text-sm mb-1">Camera-Ready / Final Paper</p>
-          {abstract.full_paper?.camera_ready_path ? (
-            <>
-              <div className="flex items-center gap-2.5 flex-wrap">
-                <a
-                  href={`/storage/${abstract.full_paper.camera_ready_path}`}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="inline-flex items-center gap-1.5 text-sm font-medium"
-                  style={{ color: '#0152EA' }}
-                >
-                  <Icon icon="solar:diploma-verified-outline" width={16} />
-                  Download Final Paper
-                </a>
-                {canUploadCameraReady && onUploadCameraReady && (
-                  <button
-                    type="button"
-                    onClick={() => onUploadCameraReady(abstract)}
-                    className="inline-flex items-center gap-1 px-2 py-0.5 text-xs font-semibold"
-                    style={{ color: '#0152EA', background: 'rgba(1,82,234,0.08)', borderRadius: 6, border: 'none', cursor: 'pointer' }}
-                  >
-                    <Icon icon="solar:upload-outline" width={13} />
-                    Re-upload
-                  </button>
-                )}
-              </div>
-              <p className="text-xs text-gray-400 mt-1">Camera-Ready Submitted</p>
-            </>
-          ) : canUploadCameraReady && onUploadCameraReady ? (
-            <button
-              type="button"
-              onClick={() => onUploadCameraReady(abstract)}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-white"
-              style={{ background: '#0152EA', borderRadius: 8, border: 'none', cursor: 'pointer', fontFamily: 'Manrope, sans-serif' }}
-            >
-              <Icon icon="solar:upload-outline" width={15} />
-              Upload Final Paper
-            </button>
-          ) : (
-            <span className="text-sm text-gray-400">Available after abstract acceptance</span>
-          )}
-        </div>
-
-        {showAbstractRevision && (
-          <div>
-            <p className="font-semibold text-gray-800 text-sm mb-1">Revision Abstract</p>
-            {abstract.reviewers.map((reviewer, i) => (
-              <div key={i} className="mb-2">
-                {reviewer.pivot?.comment && <p className="text-sm text-red-600">{reviewer.pivot.comment}</p>}
-                <p className="text-xs text-gray-400">Revision by: {reviewer.name}</p>
-              </div>
-            ))}
-          </div>
-        )}
-
-        {showFullPaperRevision && (
-          <div>
-            <p className="font-semibold text-gray-800 text-sm mb-1">Revision Fullpaper</p>
-            {abstract.full_paper.full_paper_reviews.map((review, i) => (
-              <div key={i} className="mb-2">
-                <p className="text-sm text-red-600">{review.comment}</p>
-                <p className="text-xs text-gray-400">Revision by: {review.reviewer?.name ?? 'Reviewer'}</p>
-              </div>
-            ))}
-          </div>
-        )}
       </div>
+
+      <h3 style={{ fontSize: 16, fontWeight: 700, color: '#1F2A3D', fontFamily: 'Manrope,sans-serif', margin: '0 0 6px' }}>
+        {abstract.title}
+      </h3>
+
+      {/* SDGs Badges */}
+      {abstract.sdgs && abstract.sdgs.length > 0 && (
+        <div className="flex items-center gap-1.5 flex-wrap mb-3">
+          <span className="text-xs text-gray-500 font-medium">Tema SDGs:</span>
+          {abstract.sdgs.map(sdg => (
+            <span
+              key={sdg.id}
+              className="text-xs px-2 py-0.5 rounded-md font-semibold text-white"
+              style={{ background: sdg.color || '#0152EA', fontFamily: 'Manrope,sans-serif' }}
+              title={`${sdg.code}: ${sdg.name_id || sdg.name_en}`}
+            >
+              {sdg.code}: {sdg.name_id || sdg.name_en}
+            </span>
+          ))}
+        </div>
+      )}
+
+      {/* Catatan Editor / Reviewer jika ada */}
+      {isRevision && (
+        <div className="p-3.5 rounded-xl border border-amber-200 bg-amber-50 mb-3">
+          <div className="flex items-center gap-2 mb-1">
+            <Icon icon="solar:pen-new-square-outline" width={16} style={{ color: '#D97706' }} />
+            <span className="text-xs font-bold text-amber-900">Catatan Revisi dari Editor / Reviewer:</span>
+          </div>
+          <p className="text-xs text-amber-950 m-0 whitespace-pre-wrap">
+            {abstract.editor_feedback || 'Mohon sesuaikan isi abstrak sesuai catatan review.'}
+          </p>
+          {abstract.reviewers && abstract.reviewers.length > 0 && abstract.reviewers.some(r => r.pivot?.comment) && (
+            <div className="mt-2 pt-2 border-t border-amber-200/60">
+              {abstract.reviewers.filter(r => r.pivot?.comment).map((r, i) => (
+                <div key={i} className="text-xs text-amber-900 mb-1">
+                  &bull; <em>{r.name}:</em> {r.pivot.comment}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {isRejected && (
+        <div className="p-3.5 rounded-xl border border-red-200 bg-red-50 mb-3">
+          <div className="flex items-center gap-2 mb-1">
+            <Icon icon="solar:close-circle-bold" width={16} style={{ color: '#DC2626' }} />
+            <span className="text-xs font-bold text-red-900">Alasan Penolakan:</span>
+          </div>
+          <p className="text-xs text-red-950 m-0 whitespace-pre-wrap">
+            {abstract.editor_feedback || 'Mohon maaf, abstrak belum memenuhi kriteria seminar nasional berdampak.'}
+          </p>
+        </div>
+      )}
+
+      {isAccepted && isPaymentEnabled && !hasPaid && (
+        <div className="p-3 rounded-lg border border-yellow-200 bg-yellow-50 text-xs text-yellow-800">
+          Abstrak telah diterima! Silakan selesaikan <a href="/payment" className="underline font-bold text-blue-600">pembayaran pendaftaran</a> untuk dapat mengunduh Letter of Acceptance (LoA).
+        </div>
+      )}
     </div>
   );
 }
 
-/* ---------- Expandable Row ---------- */
-function AbstractRow({ abstract, enablePublicationSelection = true, onDelete, onEdit }) {
+/* ---------- Expandable Table Row ---------- */
+function AbstractRow({ abstract, isPaymentEnabled, onDelete, onEdit }) {
   const [open, setOpen] = useState(false);
   const titleWords = (abstract.title ?? '').split(' ');
   const shortTitle = titleWords.slice(0, 8).join(' ') + (titleWords.length > 8 ? '...' : '');
 
-  const loaAvailable = abstract.status === 'accepted' && abstract.user?.file_payment?.status === 'verified';
-  const showAbstractRevision = abstract.status === 'revision' && (abstract.reviewers?.length ?? 0) > 0;
-  const showFullPaperRevision = abstract.full_paper
-    && (abstract.full_paper.full_paper_reviews?.length ?? 0) > 0
-    && abstract.full_paper.status === 'revision';
+  const isAccepted = abstract.status === 'accepted';
+  const hasPaid = abstract.user?.file_payment?.status === 'verified';
+  const loaAvailable = isAccepted && (!isPaymentEnabled || hasPaid);
 
   return (
     <>
@@ -595,26 +496,29 @@ function AbstractRow({ abstract, enablePublicationSelection = true, onDelete, on
           </span>
         </td>
         <td className="px-4 py-4">
-          <div className="flex items-center gap-2.5">
-            <EmailBadge email={abstract.corresponding_email} />
-            <div className="flex flex-col">
-              <span style={{ fontSize: 13, fontWeight: 600, color: '#1F2A3D', fontFamily: 'Manrope,sans-serif' }}>
-                {(abstract.corresponding_email ?? '').split('@')[0]}
-              </span>
-              <span style={{ fontSize: 11.5, color: '#9CA3AF', fontFamily: 'Manrope,sans-serif' }}>
-                {abstract.corresponding_email}
-              </span>
-            </div>
-          </div>
+          <span style={{ fontSize: 13, color: '#4B5563', fontFamily: 'Manrope,sans-serif' }}>
+            {abstract.corresponding_email}
+          </span>
         </td>
         <td className="px-4 py-4">
           <StatusBadge label={capitalize(abstract.status)} />
         </td>
         <td className="px-4 py-4">
-          {abstract.full_paper ? (
-            <StatusBadge label={capitalize(abstract.full_paper.status)} />
+          {abstract.sdgs && abstract.sdgs.length > 0 ? (
+            <div className="flex items-center gap-1 flex-wrap" style={{ maxWidth: 220 }}>
+              {abstract.sdgs.map(s => (
+                <span
+                  key={s.id}
+                  className="text-[11px] px-1.5 py-0.5 rounded font-bold text-white"
+                  style={{ background: s.color || '#0152EA' }}
+                  title={`${s.code}: ${s.name_id || s.name_en}`}
+                >
+                  {s.code}
+                </span>
+              ))}
+            </div>
           ) : (
-            <span className="text-sm text-gray-400">Not Submitted</span>
+            <span className="text-xs text-gray-400">-</span>
           )}
         </td>
         <td className="px-4 py-4">
@@ -632,7 +536,7 @@ function AbstractRow({ abstract, enablePublicationSelection = true, onDelete, on
               onClick={() => onEdit(abstract)}
               className="w-8 h-8 flex items-center justify-center rounded-md transition-colors"
               style={{ color: '#0152EA', cursor: 'pointer' }}
-              title="Edit"
+              title="Edit / Revisi"
             >
               <Icon icon="solar:pen-2-outline" width={16} />
             </button>
@@ -641,7 +545,7 @@ function AbstractRow({ abstract, enablePublicationSelection = true, onDelete, on
               onClick={() => onDelete(abstract)}
               className="w-8 h-8 flex items-center justify-center rounded-md transition-colors"
               style={{ color: '#EF4444', cursor: 'pointer' }}
-              title="Delete"
+              title="Hapus"
             >
               <Icon icon="solar:trash-bin-minimalistic-outline" width={16} />
             </button>
@@ -655,101 +559,66 @@ function AbstractRow({ abstract, enablePublicationSelection = true, onDelete, on
           <td colSpan={5} className="px-4 pb-4 pt-2">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-3" style={{ fontSize: 13, fontFamily: 'Manrope,sans-serif' }}>
               <div>
-                <span style={{ color: '#9CA3AF', fontWeight: 600 }}>Full Title</span>
+                <span style={{ color: '#9CA3AF', fontWeight: 600 }}>Judul Lengkap</span>
                 <p style={{ color: '#1F2A3D', marginTop: 2 }}>{abstract.title}</p>
               </div>
               <div>
-                <span style={{ color: '#9CA3AF', fontWeight: 600 }}>Conference Topic</span>
-                <p style={{ color: '#1F2A3D', marginTop: 2 }}>{abstract.symposium?.name ?? '-'}</p>
+                <span style={{ color: '#9CA3AF', fontWeight: 600 }}>Tema SDGs</span>
+                <div className="flex items-center gap-1.5 flex-wrap mt-1">
+                  {abstract.sdgs && abstract.sdgs.length > 0 ? (
+                    abstract.sdgs.map(s => (
+                      <span
+                        key={s.id}
+                        className="text-xs px-2 py-0.5 rounded text-white font-semibold"
+                        style={{ background: s.color || '#0152EA' }}
+                      >
+                        {s.code}: {s.name_id || s.name_en}
+                      </span>
+                    ))
+                  ) : (
+                    <span className="text-xs text-gray-400">Belum memilih SDGs</span>
+                  )}
+                </div>
               </div>
               <div>
-                <span style={{ color: '#9CA3AF', fontWeight: 600 }}>Requested</span>
+                <span style={{ color: '#9CA3AF', fontWeight: 600 }}>Jenis Presentasi</span>
                 <p style={{ color: '#1F2A3D', marginTop: 2 }}>{abstract.presentation_type ?? '-'}</p>
               </div>
-              {(enablePublicationSelection || abstract.publication) && (
-                <div>
-                  <span style={{ color: '#9CA3AF', fontWeight: 600 }}>Publication</span>
-                  <p style={{ color: '#1F2A3D', marginTop: 2 }}>{abstract.publication ?? 'Not Specified'}</p>
-                </div>
-              )}
+              <div>
+                <span style={{ color: '#9CA3AF', fontWeight: 600 }}>Kata Kunci</span>
+                <p style={{ color: '#1F2A3D', marginTop: 2 }}>{abstract.keyword ?? '-'}</p>
+              </div>
 
               <div>
-                <span style={{ color: '#9CA3AF', fontWeight: 600 }}>Letter of Acceptance</span>
+                <span style={{ color: '#9CA3AF', fontWeight: 600 }}>Letter of Acceptance (LoA)</span>
                 <div style={{ marginTop: 4 }}>
                   {loaAvailable ? (
                     <a
                       href={`/abstracts/${abstract.id}/acceptance-pdf`}
                       target="_blank"
                       rel="noreferrer"
-                      className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium"
-                      style={{ color: '#0152EA', background: 'rgba(1,82,234,0.08)', borderRadius: 8, textDecoration: 'none' }}
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-white bg-green-600 rounded-lg hover:bg-green-700 transition"
+                      style={{ textDecoration: 'none' }}
                     >
-                      <Icon icon="solar:diploma-verified-outline" width={15} />
-                      LOA PDF
+                      <Icon icon="solar:diploma-verified-outline" width={14} />
+                      Unduh LoA (PDF)
                     </a>
                   ) : (
-                    <span className="text-sm text-gray-400">Not Available</span>
+                    <span className="text-xs text-gray-400">
+                      {isAccepted ? 'Tersedia setelah pembayaran' : 'Tersedia setelah abstrak diterima'}
+                    </span>
                   )}
                 </div>
               </div>
 
-              <div>
-                <span style={{ color: '#9CA3AF', fontWeight: 600 }}>Full Paper</span>
-                {abstract.full_paper ? (
-                  <div className="flex gap-3 mt-2 flex-wrap">
-                    <a href={`/storage/${abstract.full_paper.file_path}`} target="_blank" rel="noreferrer"
-                      className="flex flex-col items-center gap-1" style={{ color: '#0152EA', textDecoration: 'none' }}>
-                      <Icon icon="solar:file-download-outline" width={20} />
-                      <span style={{ fontSize: 11, fontWeight: 700 }}>Submitted</span>
-                    </a>
-                    {abstract.full_paper.revised_file_path && (
-                      <a href={`/storage/${abstract.full_paper.revised_file_path}`} target="_blank" rel="noreferrer"
-                        className="flex flex-col items-center gap-1" style={{ color: '#D97706', textDecoration: 'none' }}>
-                        <Icon icon="solar:file-check-outline" width={20} />
-                        <span style={{ fontSize: 11, fontWeight: 700 }}>Revised</span>
-                      </a>
-                    )}
-                    {abstract.full_paper.camera_ready_path && (
-                      <a href={`/storage/${abstract.full_paper.camera_ready_path}`} target="_blank" rel="noreferrer"
-                        className="flex flex-col items-center gap-1" style={{ color: '#0152EA', textDecoration: 'none' }}>
-                        <Icon icon="solar:diploma-verified-outline" width={20} />
-                        <span style={{ fontSize: 11, fontWeight: 700 }}>Final Paper</span>
-                      </a>
-                    )}
-                  </div>
-                ) : (
-                  <p style={{ color: '#9CA3AF', marginTop: 4, fontSize: 13 }}>No Full Paper Uploaded</p>
-                )}
-              </div>
-
-              {showAbstractRevision && (
-                <div>
-                  <span style={{ color: '#9CA3AF', fontWeight: 600 }}>Revision Abstract</span>
-                  {abstract.reviewers.map((reviewer, i) => (
-                    <div key={i} style={{ marginTop: 4 }}>
-                      {reviewer.pivot?.comment && <p style={{ color: '#DC2626' }}>{reviewer.pivot.comment}</p>}
-                      <p style={{ color: '#9CA3AF', fontSize: 11.5 }}>Revision by: {reviewer.name}</p>
-                    </div>
-                  ))}
+              {abstract.editor_feedback && (
+                <div className="md:col-span-2">
+                  <span style={{ color: '#D97706', fontWeight: 700 }}>Catatan Editor / Reviewer:</span>
+                  <p style={{ color: '#92400E', marginTop: 2, background: '#FEF3C7', padding: '8px 12px', borderRadius: 8 }}>
+                    {abstract.editor_feedback}
+                  </p>
                 </div>
               )}
-
-              {showFullPaperRevision && (
-                <div>
-                  <span style={{ color: '#9CA3AF', fontWeight: 600 }}>Revision Fullpaper</span>
-                  {abstract.full_paper.full_paper_reviews.map((review, i) => (
-                    <div key={i} style={{ marginTop: 4 }}>
-                      <p style={{ color: '#DC2626' }}>{review.comment}</p>
-                      <p style={{ color: '#9CA3AF', fontSize: 11.5 }}>Revision by: {review.reviewer?.name ?? 'Reviewer'}</p>
-                    </div>
-                  ))}
-                </div>
-              )}
-
-              <div>
-                <span style={{ color: '#9CA3AF', fontWeight: 600 }}>Keyword</span>
-                <p style={{ color: '#1F2A3D', marginTop: 2 }}>{abstract.keyword ?? '-'}</p>
-              </div>
             </div>
           </td>
         </tr>
@@ -761,15 +630,14 @@ function AbstractRow({ abstract, enablePublicationSelection = true, onDelete, on
 export default function UserAbstractsIndex({
   abstracts,
   openAbstractSubmission,
-  openFullPaperUpload,
   symposiums = [],
   presentationTypes = [],
-  enablePublicationSelection = true,
+  sdgs = [],
+  isPaymentEnabled = false,
   maxAbstracts = 1,
 }) {
   const toast = useToast();
   useFlashToast(toast);
-  const { features } = usePage().props;
 
   const totalAbstracts = abstracts?.total ?? (abstracts?.data ? abstracts.data.length : 0);
   const reachedAbstractLimit = totalAbstracts >= maxAbstracts;
@@ -777,7 +645,6 @@ export default function UserAbstractsIndex({
   const [view, setView] = useState('list');
   const [selected, setSelected] = useState(null);
   const [confirmRow, setConfirmRow] = useState(null);
-  const [uploadTarget, setUploadTarget] = useState(null); // { type: 'fullpaper' | 'commitment', abstract }
 
   const rows = abstracts?.data ?? [];
   const page = Math.max((abstracts?.current_page ?? 1) - 1, 0);
@@ -807,7 +674,7 @@ export default function UserAbstractsIndex({
       onSuccess: () => {
         setConfirmRow(null);
       },
-      onError: () => { toast.error('Failed to delete abstract.'); setConfirmRow(null); },
+      onError: () => { toast.error('Gagal menghapus abstrak.'); setConfirmRow(null); },
     });
   };
 
@@ -824,7 +691,7 @@ export default function UserAbstractsIndex({
           abstract={view === 'edit' ? selected : null}
           symposiums={symposiums}
           presentationTypes={presentationTypes}
-          enablePublicationSelection={enablePublicationSelection}
+          sdgs={sdgs}
           onCancel={closeForm}
           toast={toast}
         />
@@ -838,16 +705,21 @@ export default function UserAbstractsIndex({
         <DetailCard
           key={`detail-${abstract.id}`}
           abstract={abstract}
-          openFullPaperUpload={openFullPaperUpload}
-          onUploadFullPaper={(a) => setUploadTarget({ type: 'fullpaper', abstract: a })}
-          onUploadCameraReady={(a) => setUploadTarget({ type: 'cameraready', abstract: a })}
+          isPaymentEnabled={isPaymentEnabled}
+          onEdit={(a) => { setSelected(a); setView('edit'); }}
         />
       ))}
 
       <div className="flex items-center justify-between mb-4 flex-wrap gap-3">
-        <h1 style={{ fontSize: 28, fontWeight: 700, color: '#1F2A3D', fontFamily: 'Manrope, sans-serif', margin: 0 }}>
-          Abstracts
-        </h1>
+        <div>
+          <h1 style={{ fontSize: 28, fontWeight: 700, color: '#1F2A3D', fontFamily: 'Manrope, sans-serif', margin: 0 }}>
+            Pengajuan Abstrak
+          </h1>
+          <p style={{ fontSize: 13.5, color: '#6B7280', margin: '4px 0 0', fontFamily: 'Manrope, sans-serif' }}>
+            Seminar Nasional Berdampak &bull; BPPM Vokasi Universitas Brawijaya
+          </p>
+        </div>
+
         <div className="flex items-center gap-2 flex-wrap">
           {openAbstractSubmission && !hasAccepted && !reachedAbstractLimit && (
             <button
@@ -856,70 +728,26 @@ export default function UserAbstractsIndex({
               className="flex items-center gap-1.5 px-4 py-2 text-sm font-medium text-white"
               style={{ backgroundColor: '#0152EA', borderRadius: 8, border: 'none', cursor: 'pointer', fontFamily: 'Manrope, sans-serif' }}
             >
-              {hasRevision ? 'Add the Revised Abstract' : 'Add Abstract'}
+              <Icon icon="solar:document-add-outline" width={18} />
+              {hasRevision ? 'Unggah Revisi Abstrak' : 'Tambah Abstrak Baru'}
             </button>
           )}
-
-          {openFullPaperUpload && rows
-            .filter(a => a.status !== 'rejected' && (!a.full_paper || a.full_paper.status === 'revision'))
-            .map(a => (
-              <button
-                key={`fp-${a.id}`}
-                type="button"
-                onClick={() => setUploadTarget({ type: 'fullpaper', abstract: a })}
-                className="px-4 py-2 text-sm font-medium text-white"
-                style={{ backgroundColor: '#0152EA', borderRadius: 8, border: 'none', cursor: 'pointer', fontFamily: 'Manrope, sans-serif' }}
-              >
-                {a.full_paper?.status === 'revision'
-                  ? (rows.length > 1 ? `Upload Revised Full Paper (${(a.title ?? '').slice(0, 16)}...)` : 'Upload Revised Full Paper')
-                  : (rows.length > 1 ? `Upload Full Paper (${(a.title ?? '').slice(0, 20)}...)` : 'Upload Full Paper')}
-              </button>
-            ))}
-
-          {openFullPaperUpload && hasAccepted && rows
-            .filter(a => a.status === 'accepted')
-            .map(a => (
-              <div key={`acc-btns-${a.id}`} className="flex items-center gap-2 flex-wrap">
-                {!a.full_paper?.camera_ready_path && (
-                  <button
-                    key={`cr-${a.id}`}
-                    type="button"
-                    onClick={() => setUploadTarget({ type: 'cameraready', abstract: a })}
-                    className="px-4 py-2 text-sm font-medium text-white"
-                    style={{ backgroundColor: '#0152EA', borderRadius: 8, border: 'none', cursor: 'pointer', fontFamily: 'Manrope, sans-serif' }}
-                  >
-                    {rows.length > 1 ? `Upload Final Paper (${(a.title ?? '').slice(0, 16)}...)` : 'Upload Final Paper (Camera-Ready)'}
-                  </button>
-                )}
-                {features?.commitment_letter && !a.full_paper?.commitment_letter_path && (
-                  <button
-                    key={`cl-${a.id}`}
-                    type="button"
-                    onClick={() => setUploadTarget({ type: 'commitment', abstract: a })}
-                    className="px-4 py-2 text-sm font-medium text-white"
-                    style={{ backgroundColor: '#0152EA', borderRadius: 8, border: 'none', cursor: 'pointer', fontFamily: 'Manrope, sans-serif' }}
-                  >
-                    {rows.length > 1 ? `Upload Commitment Letter (${(a.title ?? '').slice(0, 16)}...)` : 'Upload Commitment Letter'}
-                  </button>
-                )}
-              </div>
-            ))}
         </div>
       </div>
 
       <DataTable
         columns={[
           { key: 'toggle', label: '' },
-          { key: 'title', label: 'Title' },
-          { key: 'correspondent', label: 'Correspondent' },
+          { key: 'title', label: 'Judul Makalah' },
+          { key: 'correspondent', label: 'Email Korespondensi' },
           { key: 'status', label: 'Status' },
-          { key: 'fpStatus', label: 'FullPaper Status' },
-          { key: 'action', label: '', align: 'right' },
+          { key: 'sdgs', label: 'Tema SDGs' },
+          { key: 'action', label: 'Aksi', align: 'right' },
         ]}
         empty={(
-          <div className="flex flex-col items-center gap-2">
+          <div className="flex flex-col items-center gap-2 py-8">
             <Icon icon="solar:document-text-outline" width={48} style={{ color: '#D1D5DB' }} />
-            <p className="font-medium text-gray-500">No abstracts found</p>
+            <p className="font-medium text-gray-500">Belum ada data abstrak yang dikirimkan</p>
           </div>
         )}
         footer={(
@@ -937,7 +765,7 @@ export default function UserAbstractsIndex({
           <AbstractRow
             key={abstract.id}
             abstract={abstract}
-            enablePublicationSelection={enablePublicationSelection}
+            isPaymentEnabled={isPaymentEnabled}
             onDelete={setConfirmRow}
             onEdit={(a) => { setSelected(a); setView('edit'); }}
           />
@@ -948,51 +776,12 @@ export default function UserAbstractsIndex({
 
       <ConfirmDialog
         open={Boolean(confirmRow)}
-        title="Confirm Delete"
-        message={confirmRow ? `Are you sure you want to delete "${confirmRow.title}"? This action cannot be undone.` : ''}
-        cancelText="Cancel"
-        confirmText="Confirm"
+        title="Konfirmasi Hapus Abstrak"
+        message={confirmRow ? `Apakah Anda yakin ingin menghapus abstrak "${confirmRow.title}"? Tindakan ini tidak dapat dibatalkan.` : ''}
+        cancelText="Batal"
+        confirmText="Hapus"
         onClose={() => setConfirmRow(null)}
         onConfirm={handleConfirmDelete}
-      />
-
-      <UploadFileModal
-        open={uploadTarget?.type === 'fullpaper'}
-        title="Upload Full Paper"
-        description={`Abstract: ${uploadTarget?.abstract?.title ?? ''}`}
-        accept=".pdf,.docx"
-        fieldName="file"
-        errorKey="file"
-        url={uploadTarget ? `/store/${uploadTarget.abstract.id}` : ''}
-        onClose={() => setUploadTarget(null)}
-        toast={toast}
-      />
-
-      {features?.commitment_letter && (
-        <UploadFileModal
-          open={uploadTarget?.type === 'commitment'}
-          title="Upload Commitment Letter"
-          description={`Abstract: ${uploadTarget?.abstract?.title ?? ''}`}
-          accept=".pdf,.docx,.doc"
-          fieldName="commitment_letter"
-          errorKey="commitment_letter"
-          url={uploadTarget ? `/fullpaper/commitment-letter/${uploadTarget.abstract.id}` : ''}
-          onClose={() => setUploadTarget(null)}
-          toast={toast}
-        />
-      )}
-
-      <UploadFileModal
-        open={uploadTarget?.type === 'cameraready'}
-        title="Upload Camera-Ready / Final Paper"
-        description={`Abstract: ${uploadTarget?.abstract?.title ?? ''}`}
-        accept=".pdf,.docx,.doc"
-        fieldName="camera_ready_file"
-        errorKey="camera_ready_file"
-        maxSizeText="Max 15MB"
-        url={uploadTarget ? `/fullpaper/camera-ready/${uploadTarget.abstract.id}` : ''}
-        onClose={() => setUploadTarget(null)}
-        toast={toast}
       />
     </UserPageLayout>
   );

@@ -172,8 +172,18 @@ function AbstractRow({ item, showAssign, showReviews, colSpan }) {
                 <p style={{ color: '#1F2A3D', marginTop: 2 }}>{item.authors ?? '-'}</p>
               </div>
               <div>
-                <span style={{ color: '#9CA3AF', fontWeight: 600 }}>Publication</span>
-                <p style={{ color: '#1F2A3D', marginTop: 2 }}>{item.publication ?? '-'}</p>
+                <span style={{ color: '#9CA3AF', fontWeight: 600 }}>Tema SDGs</span>
+                <div className="flex items-center gap-1.5 flex-wrap mt-1">
+                  {item.sdgs && item.sdgs.length > 0 ? (
+                    item.sdgs.map(s => (
+                      <span key={s.id} className="text-xs px-2 py-0.5 rounded text-white font-semibold" style={{ background: s.color || '#0152EA' }}>
+                        {s.code}: {s.name_id || s.name_en}
+                      </span>
+                    ))
+                  ) : (
+                    <p style={{ color: '#1F2A3D', marginTop: 2 }}>-</p>
+                  )}
+                </div>
               </div>
               <div>
                 <span style={{ color: '#9CA3AF', fontWeight: 600 }}>Affiliations</span>

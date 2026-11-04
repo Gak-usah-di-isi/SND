@@ -24,6 +24,7 @@ use App\Models\PresentationType;
 use Illuminate\Validation\Rule;
 use App\Support\ViewingYear;
 use Inertia\Inertia;
+use App\Models\Sdg;
 
 class AbstractController extends Controller
 {
@@ -39,6 +40,7 @@ class AbstractController extends Controller
         $isArchive = ViewingYear::isReadOnly();
 
         $abstracts = AbstractModel::with([
+            'sdgs',
             'symposium',
             'fullPaper.fullPaperReviews.reviewer',
             'reviewers',
@@ -67,7 +69,9 @@ class AbstractController extends Controller
         $activeYear = Year::where('is_active', true)->first();
         $symposiums = $activeYear ? Symposium::whereYear('created_at', $activeYear->year)->get() : [];
         $presentationTypes = PresentationType::where('is_active', true)->orderBy('id')->get(['id', 'name']);
-        $enablePublicationSelection = $conferenceSetting ? (bool) ($conferenceSetting->enable_publication_selection ?? true) : true;
+        $enablePublicationSelection = $conferenceSetting ? (bool) ($conferenceSetting->enable_publication_selection ?? false) : false;
+        $allSdgs = Sdg::orderBy('order')->get();
+        $isPaymentEnabled = (bool) ($conferenceSetting->is_payment_enabled ?? false);
 
         return Inertia::render('User/Abstracts/Index', [
             'abstracts'                  => $abstracts,
@@ -76,6 +80,8 @@ class AbstractController extends Controller
             'enablePublicationSelection' => $enablePublicationSelection,
             'symposiums'                 => $symposiums,
             'presentationTypes'          => $presentationTypes,
+            'sdgs'                       => $allSdgs,
+            'isPaymentEnabled'           => $isPaymentEnabled,
             'maxAbstracts'               => (int) ($conferenceSetting->max_abstracts_per_participant ?? 1),
         ]);
     }
@@ -87,6 +93,7 @@ class AbstractController extends Controller
     {
         try {
             if (
+                request()->user()->hasRole('presenter') ||
                 request()->user()->hasRole('indonesia-presenter') ||
                 request()->user()->hasRole('foreign-presenter')
             ) {
@@ -165,7 +172,9 @@ class AbstractController extends Controller
             'keyword' => 'required',
             'presentation_type' => $presentationRule,
             'publication' => $publicationRule,
-            'symposium_id' => 'required|exists:symposiums,id',
+            'symposium_id' => 'nullable|exists:symposiums,id',
+            'sdg_ids' => 'required|array|min:1',
+            'sdg_ids.*' => 'exists:sdgs,id',
         ]);
 
         $abstract = AbstractModel::create([
@@ -181,6 +190,8 @@ class AbstractController extends Controller
             'publication' => $enablePublication ? $request->publication : null,
             'status' => 'open',
         ]);
+
+        $abstract->sdgs()->sync($request->sdg_ids);
 
         $abstract->update(['slug' => AbstractModel::generateUniqueSlug($abstract->title)]);
 
@@ -339,7 +350,7 @@ class AbstractController extends Controller
                     : 'nullable|string';
 
                 $request->validate([
-                    'title' => 'required',
+                    'title' => 'required|string|max:500',
                     'authors' => 'required',
                     'affiliations' => 'required',
                     'corresponding_email' => 'required|email',
@@ -347,7 +358,9 @@ class AbstractController extends Controller
                     'keyword' => 'required',
                     'presentation_type' => $presentationRule,
                     'publication' => $publicationRule,
-                    'symposium_id' => 'required|exists:symposiums,id',
+                    'symposium_id' => 'nullable|exists:symposiums,id',
+                    'sdg_ids' => 'required|array|min:1',
+                    'sdg_ids.*' => 'exists:sdgs,id',
                 ]);
 
                 $updateData = $request->only([
@@ -358,7 +371,13 @@ class AbstractController extends Controller
                     $updateData['publication'] = $request->publication;
                 }
 
+                // Jika status sebelumnya 'revision', pengiriman pembaruan otomatis mengembalikan ke 'under review'
+                if ($abstract->status === 'revision') {
+                    $updateData['status'] = 'under review';
+                }
+
                 $abstract->update($updateData);
+                $abstract->sdgs()->sync($request->sdg_ids);
 
                 return redirect()->route('abstracts.index')->with($this->alertUpdated());
             }

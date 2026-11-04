@@ -19,6 +19,9 @@ class ConferenceSetting extends Model
         'max_abstracts_per_participant',
         'max_words_in_abstract_body',
         'attendance_format',
+        'payment_instruction',
+        'is_payment_enabled',
+        'enable_student_registration',
         'open_registration',
         'open_full_paper_upload',
         'open_abstract_submission',
@@ -26,6 +29,8 @@ class ConferenceSetting extends Model
     ];
 
     protected $casts = [
+        'is_payment_enabled' => 'boolean',
+        'enable_student_registration' => 'boolean',
         'open_registration' => 'boolean',
         'open_full_paper_upload' => 'boolean',
         'open_abstract_submission' => 'boolean',

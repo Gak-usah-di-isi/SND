@@ -42,7 +42,7 @@ export default function IcasveSidebar({
   items,
 }) {
   const { dark } = useTheme();
-  const { activeYear, logoPath, viewingYear, availableYears = [], isArchiveMode } = usePage().props;
+  const { activeYear, logoPath, viewingYear, availableYears = [], isArchiveMode, conferenceAbbreviation } = usePage().props;
   const activeYearValue = typeof activeYear === 'object' ? activeYear?.year : activeYear;
   // Pemilih tahun hanya dikirim backend untuk role peserta; role lain
   // tetap melihat label tahun aktif saja.
@@ -101,7 +101,7 @@ export default function IcasveSidebar({
     <>
       {/* Logo */}
       <div className="h-16 px-6 flex items-center justify-center" style={{ borderBottom: `1px solid ${bord}` }}>
-        <img src={logoPath || '/images/logo.png'} alt="ICASVE" className="h-9 w-auto object-contain" />
+        <img src={logoPath || '/images/logo.png'} alt={conferenceAbbreviation || 'SND'} className="h-9 w-auto object-contain" />
       </div>
 
       {/* Clinic Selector */}
@@ -124,7 +124,7 @@ export default function IcasveSidebar({
                   </div>
                   <div className="flex flex-col text-left">
                     <span className="text-sm font-medium" style={{ color: text }}>
-                      {shownYear ? `ICASVE ${shownYear}` : 'No Active Year'}
+                      {shownYear ? `${conferenceAbbreviation || 'SND'} ${shownYear}` : 'No Active Year'}
                     </span>
                     <span className="text-xs" style={{ color: isArchiveMode ? '#D97706' : sub }}>
                       {!shownYear
@@ -164,7 +164,7 @@ export default function IcasveSidebar({
                       onMouseEnter={e => { if (!isCurrent) e.currentTarget.style.background = '#F0F5FF'; }}
                       onMouseLeave={e => { if (!isCurrent) e.currentTarget.style.background = 'transparent'; }}
                     >
-                      <span>ICASVE {year}</span>
+                      <span>{conferenceAbbreviation || 'SND'} {year}</span>
                       <span className="text-xs" style={{ color: isActive ? '#10B981' : '#9CA3AF' }}>
                         {isActive ? 'active' : 'archive'}
                       </span>
@@ -306,7 +306,7 @@ export default function IcasveSidebar({
             style={{ background: bg, borderRight: `1px solid ${bord}` }}
           >
             <div className="p-4 flex items-center justify-between" style={{ borderBottom: `1px solid ${bord}` }}>
-              <img src={logoPath || '/images/logo.png'} alt="ICASVE" className="h-8 w-auto object-contain" />
+              <img src={logoPath || '/images/logo.png'} alt={conferenceAbbreviation || 'SND'} className="h-8 w-auto object-contain" />
               <button
                 onClick={onMobileClose}
                 className="p-1 rounded"

@@ -102,7 +102,7 @@ const TABS = [
   { key: 'broadcast', label: 'Broadcast' },
 ];
 
-export default function SettingsIndexPage({ settings, years: initialYears = [] }) {
+export default function SettingsIndexPage({ settings, authBgUrl = null, isCustomBg = false, years: initialYears = [] }) {
   const toast = useToast();
   const [activeTab, setActiveTab] = useState('conference');
 
@@ -110,6 +110,10 @@ export default function SettingsIndexPage({ settings, years: initialYears = [] }
   const [years, setYears] = useState(initialYears);
   const [newYear, setNewYear] = useState('');
   const [yearError, setYearError] = useState('');
+
+  /* ---- Background state ---- */
+  const [bgPreview, setBgPreview] = useState(authBgUrl || '/images/voks.webp');
+  const [isDefaultBg, setIsDefaultBg] = useState(!isCustomBg);
 
   /* ---- Broadcast state ---- */
   const [broadcastLoading, setBroadcastLoading] = useState({
@@ -147,10 +151,14 @@ export default function SettingsIndexPage({ settings, years: initialYears = [] }
     max_words_in_abstract_body:   String(settings?.max_words_in_abstract_body ?? ''),
     attendance_format:            settings?.attendance_format ?? 'hybrid',
     payment_instruction:          settings?.payment_instruction ?? '',
+    is_payment_enabled:           settings?.is_payment_enabled ?? false,
+    enable_student_registration:  settings?.enable_student_registration ?? true,
     open_registration:            settings?.open_registration ?? false,
     open_full_paper_upload:       settings?.open_full_paper_upload ?? false,
     open_abstract_submission:     settings?.open_abstract_submission ?? false,
-    enable_publication_selection: settings?.enable_publication_selection ?? true,
+    enable_publication_selection: settings?.enable_publication_selection ?? false,
+    auth_background:              null,
+    reset_auth_background:        false,
   });
 
   const [errors, setErrors] = useState({});
@@ -158,12 +166,33 @@ export default function SettingsIndexPage({ settings, years: initialYears = [] }
   const setInput = (key) => (e) => setForm(f => ({ ...f, [key]: e.target.value }));
   const setVal   = (key) => (val) => setForm(f => ({ ...f, [key]: val }));
 
+  const handleBgChange = (e) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setForm(f => ({ ...f, auth_background: file, reset_auth_background: false }));
+      setBgPreview(URL.createObjectURL(file));
+      setIsDefaultBg(false);
+    }
+  };
+
+  const handleResetBg = () => {
+    setForm(f => ({ ...f, auth_background: null, reset_auth_background: true }));
+    setBgPreview('/images/voks.webp');
+    setIsDefaultBg(true);
+  };
+
   const handleSubmit = () => {
-    router.post('/admin/settings', {
+    const payload = {
       ...form,
       max_abstracts_per_participant: Number(form.max_abstracts_per_participant),
       max_words_in_abstract_body:   Number(form.max_words_in_abstract_body),
-    }, {
+    };
+    if (!payload.auth_background) {
+      delete payload.auth_background;
+    }
+
+    router.post('/admin/settings', payload, {
+      forceFormData: true,
       onSuccess: () => toast.success('Settings saved successfully.'),
       onError: (errs) => {
         setErrors(errs);
@@ -260,7 +289,7 @@ export default function SettingsIndexPage({ settings, years: initialYears = [] }
                 <FloatInput
                   id="conference_abbreviation"
                   label="Abbreviation *"
-                  placeholder="E.g. ICASVE 2025"
+                  placeholder="E.g. SND 2026"
                   value={form.conference_abbreviation}
                   onChange={setInput('conference_abbreviation')}
                   error={!!errors.conference_abbreviation}
@@ -283,6 +312,77 @@ export default function SettingsIndexPage({ settings, years: initialYears = [] }
                 error={!!errors.conference_chairperson}
                 helperText={errors.conference_chairperson}
               />
+
+              {/* Background Register & Login */}
+              <div style={{ marginTop: 10, padding: '16px 20px', borderRadius: 10, background: '#F8FAFC', border: '1px solid #E5E7EB' }}>
+                <p style={{ fontSize: 14, fontWeight: 700, color: '#1F2A3D', margin: '0 0 4px', fontFamily: 'Manrope, sans-serif' }}>
+                  Background Halaman Registrasi & Login
+                </p>
+                <p style={{ fontSize: 12.5, color: '#6B7280', margin: '0 0 16px', fontFamily: 'Manrope, sans-serif' }}>
+                  Kustomisasi foto latar belakang yang ditampilkan di sisi kiri formulir pendaftaran dan login.
+                </p>
+
+                <div className="flex flex-col md:flex-row items-start gap-5">
+                  <div
+                    style={{
+                      width: 280,
+                      height: 160,
+                      border: '2px dashed #CBD5E1',
+                      borderRadius: 10,
+                      cursor: 'pointer',
+                      position: 'relative',
+                      overflow: 'hidden',
+                      backgroundColor: '#fff',
+                    }}
+                    onClick={() => document.getElementById('auth-bg-input')?.click()}
+                  >
+                    <img
+                      src={bgPreview}
+                      alt="Preview Background"
+                      className="w-full h-full object-cover"
+                    />
+                    <div className="absolute inset-0 bg-black/30 opacity-0 hover:opacity-100 transition flex items-center justify-center text-white text-xs font-semibold">
+                      Ganti Gambar
+                    </div>
+                  </div>
+
+                  <input
+                    id="auth-bg-input"
+                    type="file"
+                    accept="image/png,image/jpeg,image/webp"
+                    className="hidden"
+                    onChange={handleBgChange}
+                  />
+
+                  <div className="flex flex-col gap-2.5">
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() => document.getElementById('auth-bg-input')?.click()}
+                        className="px-4 py-2 text-xs font-semibold text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-lg border border-blue-200 transition cursor-pointer"
+                      >
+                        Pilih Gambar Background
+                      </button>
+                      {!isDefaultBg && (
+                        <button
+                          type="button"
+                          onClick={handleResetBg}
+                          className="px-4 py-2 text-xs font-semibold text-red-600 bg-red-50 hover:bg-red-100 rounded-lg border border-red-200 transition cursor-pointer"
+                        >
+                          Reset ke Default
+                        </button>
+                      )}
+                    </div>
+                    <p style={{ fontSize: 12, color: '#9CA3AF', fontFamily: 'Manrope, sans-serif', lineHeight: 1.5 }}>
+                      Format didukung: <strong>JPG, PNG, atau WEBP</strong> (Maks. 5MB).<br />
+                      Rekomendasi rasio landscape: <strong>1920 × 1080 px</strong>.
+                    </p>
+                    {errors.auth_background && (
+                      <p className="text-xs text-red-500">{errors.auth_background}</p>
+                    )}
+                  </div>
+                </div>
+              </div>
             </div>
             <SaveBtn />
           </Card>
@@ -396,12 +496,32 @@ export default function SettingsIndexPage({ settings, years: initialYears = [] }
               </div>
               <div style={{ padding: '16px 20px', borderRadius: 8, background: '#F8FAFC', border: '1px solid #E5E7EB' }}>
                 <Toggle
+                  checked={form.enable_student_registration}
+                  onChange={setVal('enable_student_registration')}
+                  label="Aktifkan Pilihan Status Mahasiswa (Student Checkbox)"
+                />
+                <p style={{ fontSize: 12, color: '#9CA3AF', marginTop: 4, marginLeft: 56, fontFamily: 'Manrope, sans-serif' }}>
+                  Menampilkan opsi checkbox "I am a Student / Mahasiswa" pada form pendaftaran akun peserta
+                </p>
+              </div>
+              <div style={{ padding: '16px 20px', borderRadius: 8, background: '#F8FAFC', border: '1px solid #E5E7EB' }}>
+                <Toggle
                   checked={form.open_abstract_submission}
                   onChange={setVal('open_abstract_submission')}
                   label="Open Abstract Submission"
                 />
                 <p style={{ fontSize: 12, color: '#9CA3AF', marginTop: 4, marginLeft: 56, fontFamily: 'Manrope, sans-serif' }}>
                   Allow participants to submit and edit abstracts
+                </p>
+              </div>
+              <div style={{ padding: '16px 20px', borderRadius: 8, background: '#F8FAFC', border: '1px solid #E5E7EB' }}>
+                <Toggle
+                  checked={form.is_payment_enabled}
+                  onChange={setVal('is_payment_enabled')}
+                  label="Aktifkan Biaya Pendaftaran / Pembayaran"
+                />
+                <p style={{ fontSize: 12, color: '#9CA3AF', marginTop: 4, marginLeft: 56, fontFamily: 'Manrope, sans-serif' }}>
+                  Jika dinonaktifkan (OFF), seminar berstatus GRATIS sehingga peserta yang diterima dapat langsung mengunduh LoA tanpa verifikasi transfer.
                 </p>
               </div>
               <div style={{ padding: '16px 20px', borderRadius: 8, background: '#F8FAFC', border: '1px solid #E5E7EB' }}>

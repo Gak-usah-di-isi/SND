@@ -14,12 +14,9 @@ const SidebarContentUser = (showAbstract = true, showFinalPaper = false) => [
         children: [
           { name: 'Dashboard', icon: 'solar:widget-outline', id: uniqueId(), url: '/dashboard' },
           ...(showAbstract
-            ? [{ name: 'Abstract', icon: 'solar:document-text-outline', id: uniqueId(), url: '/abstracts' }]
+            ? [{ name: 'Abstrak', icon: 'solar:document-text-outline', id: uniqueId(), url: '/abstracts' }]
             : []),
-          ...(showAbstract && showFinalPaper
-            ? [{ name: 'Final Paper', icon: 'solar:diploma-verified-outline', id: uniqueId(), url: '/final-paper' }]
-            : []),
-          { name: 'Payment', icon: 'solar:wallet-outline', id: uniqueId(), url: '/payment' },
+          { name: 'Pembayaran', icon: 'solar:wallet-outline', id: uniqueId(), url: '/payment' },
         ],
       },
     ],

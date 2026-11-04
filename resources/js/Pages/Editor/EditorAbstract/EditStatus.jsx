@@ -8,18 +8,21 @@ import FormActions from '../../../Components/ui/FormActions';
 import StatusBadge from '../../../Components/ui/StatusBadge';
 import { ToastContainer, useToast } from '../../../Components/ui/Toast';
 
+import { FloatInput } from '../../../Components/ui/FloatInput';
+
 const SECTION_TITLE = { fontSize: 16, fontWeight: 600, color: '#1F2A3D', marginBottom: 16, fontFamily: 'Manrope, sans-serif' };
 
 const STATUS_OPTIONS = [
   { value: 'open', label: 'Open' },
   { value: 'under review', label: 'Under Review' },
-  { value: 'accepted', label: 'Accepted' },
-  { value: 'revision', label: 'Revision' },
-  { value: 'rejected', label: 'Rejected' },
+  { value: 'accepted', label: 'Accepted (Diterima)' },
+  { value: 'revision', label: 'Revision (Perlu Revisi)' },
+  { value: 'rejected', label: 'Rejected (Ditolak)' },
 ];
 
 export default function EditorEditStatusPage({ abstract, formattedAuthors, formattedAffiliations, badgeCounts }) {
   const [status, setStatus] = useState(abstract.status ?? '');
+  const [editorFeedback, setEditorFeedback] = useState(abstract.editor_feedback ?? '');
   const [errors, setErrors] = useState({});
   const [submitting, setSubmitting] = useState(false);
   const toast = useToast();
@@ -33,9 +36,10 @@ export default function EditorEditStatusPage({ abstract, formattedAuthors, forma
       return;
     }
     setSubmitting(true);
-    // Sukses tidak di-toast di sini: controller redirect ke halaman All Abstract,
-    // jadi komponen ini unmount. Toast sukses tampil di sana via useFlashToast.
-    router.post(`/reviewer/editor-abstract/edit-status/${abstract.id}`, { status }, {
+    router.post(`/reviewer/editor-abstract/edit-status/${abstract.id}`, {
+      status,
+      editor_feedback: editorFeedback,
+    }, {
       onError: (errs) => {
         setErrors(errs);
         toast.error('Failed to update status.');
@@ -93,9 +97,28 @@ export default function EditorEditStatusPage({ abstract, formattedAuthors, forma
           </div>
 
           {abstract.keyword && (
-            <p style={{ fontSize: 13.5, color: '#374151', fontFamily: 'Manrope,sans-serif', margin: 0 }}>
+            <p style={{ fontSize: 13.5, color: '#374151', fontFamily: 'Manrope,sans-serif', margin: '0 0 16px' }}>
               <strong>Keyword:</strong> {abstract.keyword}
             </p>
+          )}
+
+          {abstract.sdgs && abstract.sdgs.length > 0 && (
+            <div style={{ borderTop: '1px solid #E2E8F0', paddingTop: 16 }}>
+              <p style={{ fontSize: 12.5, fontWeight: 700, color: '#6B7280', textTransform: 'uppercase', margin: '0 0 8px' }}>
+                Tema SDGs yang Dipilih Penulis:
+              </p>
+              <div className="flex items-center gap-1.5 flex-wrap">
+                {abstract.sdgs.map(s => (
+                  <span
+                    key={s.id}
+                    className="text-xs px-2.5 py-1 rounded-md text-white font-semibold"
+                    style={{ background: s.color || '#0152EA', fontFamily: 'Manrope,sans-serif' }}
+                  >
+                    {s.code}: {s.name_id || s.name_en}
+                  </span>
+                ))}
+              </div>
+            </div>
           )}
         </div>
 
@@ -137,23 +160,39 @@ export default function EditorEditStatusPage({ abstract, formattedAuthors, forma
 
         {/* Form ubah status */}
         <Card>
-          <p style={SECTION_TITLE}>Editor Decision</p>
+          <p style={SECTION_TITLE}>Editor Decision (Keputusan Editor)</p>
           <div className="flex items-center gap-2" style={{ marginBottom: 16 }}>
-            <span style={{ fontSize: 13, color: '#6B7280', fontFamily: 'Manrope,sans-serif' }}>Current status:</span>
+            <span style={{ fontSize: 13, color: '#6B7280', fontFamily: 'Manrope,sans-serif' }}>Status saat ini:</span>
             <StatusBadge label={abstract.status ? abstract.status.charAt(0).toUpperCase() + abstract.status.slice(1) : '-'} />
           </div>
-          <FloatSelect
-            id="status"
-            label="Change Status *"
-            options={STATUS_OPTIONS}
-            value={status}
-            onChange={setStatus}
-            error={!!errors.status}
-            helperText={errors.status}
-          />
+          <div className="flex flex-col gap-4">
+            <FloatSelect
+              id="status"
+              label="Ubah Status *"
+              options={STATUS_OPTIONS}
+              value={status}
+              onChange={setStatus}
+              error={!!errors.status}
+              helperText={errors.status}
+            />
+
+            {(status === 'revision' || status === 'rejected') && (
+              <div>
+                <FloatInput
+                  id="editor_feedback"
+                  label={status === 'revision' ? 'Catatan Perbaikan untuk Penulis (Wajib diisi jika revisi) *' : 'Alasan Penolakan Makalah'}
+                  value={editorFeedback}
+                  onChange={(e) => setEditorFeedback(e.target.value)}
+                  multiline
+                  rows={4}
+                  placeholder="Tuliskan poin-poin yang perlu diperbaiki oleh penulis..."
+                />
+              </div>
+            )}
+          </div>
+
           <p style={{ fontSize: 12.5, color: '#9CA3AF', fontFamily: 'Manrope,sans-serif', marginTop: 14 }}>
-            Selecting <strong style={{ color: '#6B7280' }}>accepted</strong> will send an acceptance email to the author
-            (along with an invoice if payment has not been made).
+            Memilih <strong>Accepted</strong> akan menandai abstrak diterima dan menerbitkan hak unduh Letter of Acceptance (LoA) bagi peserta.
           </p>
         </Card>
 

@@ -17,5 +17,7 @@ class DatabaseSeeder extends Seeder
         $this->call(YearSeeder::class);
         $this->call(LandingSettingSeeder::class);
         $this->call(CountriesSeeder::class);
+        $this->call(SdgSeeder::class);
+        $this->call(ConferenceSettingSeeder::class);
     }
 }

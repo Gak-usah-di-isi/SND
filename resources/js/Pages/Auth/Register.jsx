@@ -11,10 +11,7 @@ const ATTENDANCE_OPTIONS = [
 ];
 
 const ROLE_ORDER = [
-  'indonesia-presenter',
-  'foreign-presenter',
-  'indonesia-participants',
-  'foreign-participants',
+  'presenter',
   'reviewer',
 ];
 
@@ -25,6 +22,7 @@ export default function Register({
   conferenceAbbreviation,
   logoPath,
   openRegistration,
+  enableStudentRegistration = true,
   roles = [],
   countries = [],
 }) {
@@ -114,7 +112,7 @@ export default function Register({
     <AuthLayout tagline={tagline}>
       {step === 2 && (
         <div className="text-center">
-          <img src={logoPath} alt="Logo ICASVE" className="inline-block mb-2 h-14 w-auto object-contain" />
+          <img src={logoPath} alt={`Logo ${conferenceAbbreviation || 'SND'}`} className="inline-block mb-2 h-14 w-auto object-contain" />
         </div>
       )}
       <h3 className="flex justify-center items-center text-2xl font-bold my-3 mt-5">
@@ -153,25 +151,27 @@ export default function Register({
                 value={form.role_id} onChange={setVal('role_id')} error={!!errors.role_id} helperText={errors.role_id} />
             </div>
 
-            <div className="mb-5">
-              <label className="flex items-start gap-3 p-2 cursor-pointer transition select-none">
-                <input
-                  type="checkbox"
-                  id="is_student"
-                  checked={form.is_student}
-                  onChange={(e) => setForm((f) => ({ ...f, is_student: e.target.checked }))}
-                  className="mt-0.5 w-4 h-4 rounded text-blue-600 focus:ring-blue-500 border-gray-300 cursor-pointer"
-                />
-                <div className="flex flex-col">
-                  <span className="text-sm font-semibold text-gray-800">
-                    I am a Student / Mahasiswa
-                  </span>
-                  <span className="text-xs text-gray-500 mt-0.5">
-                    Check if you are registering with student status.
-                  </span>
-                </div>
-              </label>
-            </div>
+            {enableStudentRegistration && (
+              <div className="mb-5">
+                <label className="flex items-start gap-3 p-2 cursor-pointer transition select-none">
+                  <input
+                    type="checkbox"
+                    id="is_student"
+                    checked={form.is_student}
+                    onChange={(e) => setForm((f) => ({ ...f, is_student: e.target.checked }))}
+                    className="mt-0.5 w-4 h-4 rounded text-blue-600 focus:ring-blue-500 border-gray-300 cursor-pointer"
+                  />
+                  <div className="flex flex-col">
+                    <span className="text-sm font-semibold text-gray-800">
+                      I am a Student / Mahasiswa
+                    </span>
+                    <span className="text-xs text-gray-500 mt-0.5">
+                      Check if you are registering with student status.
+                    </span>
+                  </div>
+                </label>
+              </div>
+            )}
 
             <button
               type="button"

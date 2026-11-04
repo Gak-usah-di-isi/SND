@@ -13,7 +13,7 @@ class AbstractModel extends Model
     protected $table = 'abstracts';
     protected $fillable = [
         'user_id', 'symposium_id', 'title', 'slug', 'keyword', 'authors', 'affiliations',
-        'corresponding_email', 'abstract', 'presentation_type', 'publication', 'status'
+        'corresponding_email', 'abstract', 'presentation_type', 'publication', 'status', 'editor_feedback'
     ];
     protected $appends = ['route_key'];
 
@@ -53,6 +53,11 @@ class AbstractModel extends Model
     public function symposium()
     {
         return $this->belongsTo(Symposium::class);
+    }
+
+    public function sdgs()
+    {
+        return $this->belongsToMany(Sdg::class, 'abstract_sdg', 'abstract_id', 'sdg_id')->orderBy('order');
     }
 
     public function abstractReviews()

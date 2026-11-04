@@ -36,6 +36,7 @@ class UploadController extends Controller
             'commitment_letter' => 'docx',
             'pararel_session_template' => 'pdf',
             'bg_zoom_template' => 'jpg,jpeg,png',
+            'auth_background' => 'jpg,jpeg,png,webp',
         ];
 
         $request->validate([

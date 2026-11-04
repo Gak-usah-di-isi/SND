@@ -14,6 +14,7 @@ use App\Traits\FlashAlert;
 use App\Traits\EditorSidebarBadges;
 use App\Mail\ReviewerAssignedAbstract;
 use App\Models\Year;
+use App\Models\ConferenceSetting;
 use Illuminate\Support\Facades\Log;
 
 class EditorController extends Controller
@@ -48,7 +49,7 @@ class EditorController extends Controller
         $status = $request->query('status');
         $presentationType = $request->query('presentation_type');
 
-        return AbstractModel::with(['symposium', 'abstractReviews.reviewer'])
+        return AbstractModel::with(['sdgs', 'symposium', 'abstractReviews.reviewer'])
             ->when($filter, $filter)
             ->when($activeYear, fn ($q) => $q->whereYear('created_at', $activeYear->year))
             ->when($search, fn ($q) => $q->where('title', 'LIKE', "%{$search}%"))
@@ -125,7 +126,7 @@ class EditorController extends Controller
 
     public function showAssignReviewer($abstractId)
     {
-        $abstract = AbstractModel::with(['reviewers', 'symposium'])->findOrFail($abstractId);
+        $abstract = AbstractModel::with(['reviewers', 'symposium', 'sdgs'])->findOrFail($abstractId);
 
         $reviewers = User::whereHas('roles', function ($query) {
             $query->whereIn('name', ['reviewer', 'editor', 'chief-editor']);
@@ -188,7 +189,7 @@ class EditorController extends Controller
 
     public function showEditStatus($abstractId)
     {
-        $abstract = AbstractModel::with(['symposium', 'abstractReviews.reviewer'])->findOrFail($abstractId);
+        $abstract = AbstractModel::with(['sdgs', 'symposium', 'abstractReviews.reviewer'])->findOrFail($abstractId);
         $formattedAuthors = $this->formatAuthors($abstract->authors);
         $formattedAffiliations = $this->formatAffiliations($abstract->affiliations);
 
@@ -217,10 +218,14 @@ class EditorController extends Controller
         $abstract = AbstractModel::findOrFail($abstractId);
 
         $request->validate([
-            'status' => 'required|string|in:open,under review,accepted,revision,rejected'
+            'status' => 'required|string|in:open,under review,accepted,revision,rejected',
+            'editor_feedback' => 'nullable|string',
         ]);
 
         $abstract->status = $request->status;
+        if ($request->has('editor_feedback')) {
+            $abstract->editor_feedback = $request->editor_feedback;
+        }
         $abstract->save();
 
         if ($request->status === 'accepted') {
@@ -228,18 +233,21 @@ class EditorController extends Controller
             try {
                 Mail::to($user->email)->send(new AbstractAccepted($user, $abstract));
 
-                // Harus pembayaran untuk tahun konferensi aktif — kalau hanya mengecek
-                // "pernah bayar", peserta lama tidak akan pernah menerima invoice lagi.
-                $hasPaid = FilePayment::where('user_id', $user->id)->forYear(Year::activeYear())->exists();
+                $confSetting = ConferenceSetting::first();
+                $isPaymentEnabled = (bool) ($confSetting->is_payment_enabled ?? false);
 
-                if (!$hasPaid) {
-                    Mail::to($user->email)->send(new AbstractInvoice($user, $abstract));
+                // Kirim invoice hanya jika sistem pembayaran diaktifkan oleh admin
+                if ($isPaymentEnabled) {
+                    $hasPaid = FilePayment::where('user_id', $user->id)->forYear(Year::activeYear())->exists();
+                    if (!$hasPaid) {
+                        Mail::to($user->email)->send(new AbstractInvoice($user, $abstract));
+                    }
                 }
             } catch (\Throwable $e) {
                 Log::error("Gagal mengirim email acceptance/invoice abstract {$abstractId}: " . $e->getMessage());
                 return redirect()->route('reviewer.editor.index')->with([
                     'type' => 'warning',
-                    'message' => 'Status berhasil diubah menjadi accepted, tetapi email gagal terkirim (port SMTP mungkin terblokir). Admin dapat mengirim/mengunduh invoice secara manual di menu Participant.'
+                    'message' => 'Status berhasil diubah menjadi accepted, tetapi email gagal terkirim (port SMTP mungkin terblokir).'
                 ]);
             }
         }
