@@ -1,0 +1,86 @@
+/* custom.css */
+#abstract_preview {
+    line-height: 1.2;
+    width: 95%;
+    max-width: 1024px;
+    border: solid 1px #ccc;
+    box-shadow: 5px 5px 2px #ccc;
+    margin: auto;
+    padding: 10px;
+}
+
+#abstract_title {
+    text-align: center;
+    font-family: "Times", serif;
+    font-size: 16pt;
+    font-weight: bold;
+}
+
+#content p {
+    color: #000000;
+    margin-bottom: 10px;
+}
+
+p {
+    display: block;
+    margin-block-start: 1em;
+    margin-block-end: 1em;
+    margin-inline-start: 0px;
+    margin-inline-end: 0px;
+    unicode-bidi: isolate;
+}
+
+#abstract_author {
+    text-align: center;
+    font-family: "Times", serif;
+    font-size: 12pt;
+}
+
+#abstract_affiliation {
+    text-align: center;
+    font-family: "Times", serif;
+    font-style: italic;
+    font-size: 10pt;
+}
+
+#abstract_email {
+    text-align: center;
+    font-family: "Times", serif;
+    font-size: 10pt;
+}
+
+#abstract_abstract {
+    font-weight: bold;
+    font-family: "Times", serif;
+    font-size: 12pt;
+    text-align: center;
+}
+
+#abstract_body {
+    text-align: justify;
+    font-family: "Times", serif;
+    font-size: 10pt;
+}
+
+hr {
+    border: 0;
+    border-top: 1px solid #eee;
+    margin: 20px 0;
+}
+
+hr {
+    box-sizing: content-box;
+    height: 0;
+}
+
+#abstract_symposium {
+    font-size: 10pt;
+    font-family: "Times", serif;
+    font-style: italic;
+}
+
+#keyword {
+    font-size: 10pt;
+    font-family: "Times", serif;
+    font-style: italic;
+}

@@ -1,0 +1,86 @@
+@import "tailwindcss";
+@import url("https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&display=swap");
+
+:root {
+  --color-lightgray: #F4F7FB;
+  --color-primary: #0152EA;
+  --color-border: #e0e6eb;
+  --color-bodytext: #98A4AE;
+  --color-dark: #1F2A3D;
+  --color-darkgray: #1A2537;
+}
+
+*, *::before, *::after {
+  font-family: 'Manrope', system-ui, -apple-system, sans-serif;
+}
+
+body {
+  font-family: 'Manrope', system-ui, -apple-system, sans-serif;
+  font-size: 14px;
+  color: #98A4AE;
+}
+
+/* Match tailwind text-sm default used in template */
+p, span, div, a, button, input, td, th, li {
+  font-family: 'Manrope', system-ui, -apple-system, sans-serif;
+}
+
+/* Override Tailwind gray scale to match template's color system */
+/* Loading spinner — matches Nex Healthcare Spinner component */
+.fallback-spinner {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #fff;
+  z-index: 9999;
+}
+.fallback-spinner .loading {
+  position: relative;
+  width: 55px;
+  height: 55px;
+  border-radius: 50%;
+  box-sizing: border-box;
+  border: 3px solid transparent;
+}
+.fallback-spinner .effects {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border: 3px solid transparent;
+  border-left: 3px solid var(--color-primary, #0152EA);
+  border-radius: 50%;
+  box-sizing: border-box;
+  transition: all 0.3s ease;
+}
+.fallback-spinner .effect-1 { animation: spinner-rotate 1s ease infinite; }
+.fallback-spinner .effect-2 { animation: spinner-rotateOpacity 1s ease infinite 0.1s; }
+.fallback-spinner .effect-3 { animation: spinner-rotateOpacity 1s ease infinite 0.2s; }
+
+@keyframes spinner-rotate {
+  0%   { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+@keyframes spinner-rotateOpacity {
+  0%   { transform: rotate(0deg);   opacity: 0.1; }
+  100% { transform: rotate(360deg); opacity: 1;   }
+}
+
+@layer utilities {
+  .text-gray-900 { color: #2A3547; }
+  .text-gray-800 { color: #2A3547; }
+  .text-gray-700 { color: #2A3547; }
+  .text-gray-600 { color: #5A6A85; }
+  .text-gray-500 { color: #98A4AE; }
+  .text-gray-400 { color: #98A4AE; }
+  .border-gray-200 { border-color: #e0e6eb; }
+  .border-gray-100 { border-color: #f3f3f4; }
+  .bg-gray-50  { background-color: #f6f7f9; }
+  .bg-gray-100 { background-color: #EFF4FA; }
+
+  /* Override Tailwind rounded to match template's custom scale */
+  .rounded-sm { border-radius: 6px; }
+  .rounded-md { border-radius: 9px; }
+  .rounded-lg { border-radius: 24px; }
+}

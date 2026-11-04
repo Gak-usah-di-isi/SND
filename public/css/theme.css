@@ -1,0 +1,174 @@
+/**
+ * Per-year color theming for the ICASVE landing page.
+ * 2025 keeps the original template palette (main.css defaults, untouched).
+ * 2026 overrides CSS variables + a few hardcoded template colors with the
+ * ICASVE logo palette: navy #141a63, pink #db2896, yellow #ffcc0f, cream #fcfaeb.
+ */
+
+/* Global variables - cascades to buttons, links, icons, footer, faq, forms, etc. */
+.theme-2026 {
+    --background-color: #fcfaeb; /* logo cream - base page background */
+    --surface-color: #ffffff; /* cards/boxes stay white so they stand out on the cream page */
+    --heading-color: #141a63; /* logo navy */
+    --accent-color: #db2896; /* logo pink */
+    --nav-hover-color: #db2896;
+    --nav-dropdown-hover-color: #db2896;
+}
+
+/* Navbar - template hardcodes this color locally, so it needs its own override */
+.theme-2026 .header {
+    --background-color: #141a63;
+}
+
+.theme-2026.scrolled .header {
+    --background-color: #1c2373;
+}
+
+/* Hero + footer (both use .dark-background) */
+.theme-2026 .dark-background {
+    --background-color: #141a63;
+    --surface-color: #1c2373;
+}
+
+/* About / features / other light sections */
+.theme-2026 .light-background {
+    --background-color: #fcfaeb; /* logo cream */
+}
+
+/* Small decorative underline before each section title -> yellow */
+.theme-2026 .section-title h2::after {
+    background: #ffcc0f;
+}
+
+/* Title text color for specific sections: Keynote Speakers, Deadline Dates, Registration Fee, Venue, Publications Journal, Contact */
+.theme-2026 .title-accent div,
+.theme-2026 .title-accent div span {
+    color: #ffcc0f;
+}
+
+/* Small gray label above each accented title (Keynote Speakers, ICASVE Conference Timeline, Registration, Venue, Publications, Contact) -> pink */
+.theme-2026 .title-accent h2 {
+    color: #db2896;
+}
+
+/* Hero underline (under the conference title) -> yellow instead of pink */
+.theme-2026 .hero h1 span {
+    border-bottom-color: #ffcc0f;
+}
+
+/* About section heading (About > $about->title, e.g. "ICASVE 2026") */
+.theme-2026 .about .content h2 {
+    color: #ffcc0f;
+}
+
+/* Single combined Login button (replaces separate Login + Register buttons, 2026 only) */
+.theme-2026 .btn-cta-single {
+    display: inline-flex;
+    align-items: center;
+    gap: 14px;
+    background: #ffffff;
+    color: #141a63;
+    font-family: var(--heading-font);
+    font-weight: 600;
+    font-size: 15px;
+    letter-spacing: 0.5px;
+    padding: 6px 6px 6px 26px;
+    border-radius: 50px;
+    transition: 0.3s;
+}
+
+.theme-2026 .btn-cta-single .btn-cta-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background: #141a63;
+    color: #ffffff;
+    font-size: 16px;
+    transition: 0.3s;
+}
+
+.theme-2026 .btn-cta-single:hover {
+    background: color-mix(in srgb, #ffffff, transparent 10%);
+    box-shadow: 0 8px 28px rgba(0, 0, 0, 0.15);
+}
+
+.theme-2026 .btn-cta-single:hover .btn-cta-icon {
+    background: #db2896;
+}
+
+/* Newsletter "Subscribe" button */
+.theme-2026 .footer .footer-newsletter .newsletter-form input[type="submit"] {
+    background: #ffcc0f;
+    color: #141a63;
+}
+
+.theme-2026 .footer .footer-newsletter .newsletter-form input[type="submit"]:hover {
+    background: color-mix(in srgb, #ffcc0f, transparent 20%);
+}
+
+/* Committee pages (Steering, Reviewer, Organizing) - title + underline */
+.theme-2026 .title-committee {
+    color: #ffcc0f;
+}
+
+.theme-2026 .line.bg-success {
+    background-color: #db2896 !important;
+}
+
+/* Submission Guidelines pages (Abstract, Fullpaper, Presentation) - title */
+.theme-2026 .title-submission {
+    color: #ffcc0f;
+}
+
+/* Conference Program + Previous Conference page titles */
+.theme-2026 h1.fw-bold {
+    color: #ffcc0f;
+}
+
+/* FAQ title "Frequently Asked Questions" -> yellow (applies to both the home page FAQ section and the standalone /faq page, they share the same #faq markup) */
+.theme-2026 #faq h3 {
+    color: #ffcc0f;
+}
+
+/* Contact "Send Message" button */
+.theme-2026 .contact .php-email-form button[type="submit"] {
+    background: #ffcc0f;
+    color: #141a63;
+}
+
+.theme-2026 .contact .php-email-form button[type="submit"]:hover {
+    background: color-mix(in srgb, #ffcc0f, transparent 25%);
+    color: #141a63;
+}
+
+/* Publications Journal & Hosted/Supported section background */
+.theme-2026 #publications-section,
+.theme-2026 .publications-section {
+    background-color: var(--background-color) !important;
+}
+
+.theme-2026 #hosted-supported-section,
+.theme-2026 #hosted-supported-section .hosted-box {
+    background-color: var(--background-color) !important;
+}
+
+/* Conference Objectives – 2026 theme */
+.theme-2026 #conference-objectives {
+    background-color: var(--background-color) !important;
+}
+
+.theme-2026 .objective-icon-wrap {
+    background: #141a63; /* navy */
+}
+
+.theme-2026 .objective-card {
+    border-color: rgba(20, 26, 99, 0.08);
+}
+
+.theme-2026 .objective-card:hover {
+    box-shadow: 0 8px 32px rgba(20, 26, 99, 0.14);
+}
