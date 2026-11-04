@@ -195,65 +195,75 @@ class AbstractController extends Controller
 
         $abstract->update(['slug' => AbstractModel::generateUniqueSlug($abstract->title)]);
 
-        $this->generateCertificate($abstract);
+        try {
+            $this->generateCertificate($abstract);
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::warning("Gagal auto generate certificate saat submit abstract: " . $e->getMessage());
+        }
 
         return redirect()->route('abstracts.index')->with($this->alertCreated());
     }
 
     public function generateCertificate(AbstractModel $abstract)
     {
-        $user = $abstract->user;
-        $role = $user->roles->first()->name;
+        try {
+            $user = $abstract->user;
+            $role = $user->roles->first()?->name;
 
-        $templateUrl = Upload::getFilePath('certificate_presenter');
-        $templatePath = storage_path('app/public/' . str_replace(asset('storage/'), '', $templateUrl));
+            $templateUrl = Upload::getFilePath('certificate_presenter');
+            if (!$templateUrl) {
+                return;
+            }
 
-        if (!file_exists($templatePath)) {
-            throw new \Exception('Certificate template not found');
+            $templatePath = storage_path('app/public/' . str_replace(asset('storage/'), '', $templateUrl));
+
+            if (!file_exists($templatePath)) {
+                return;
+            }
+
+            $pdf = new Fpdi();
+            $pdf->setSourceFile($templatePath);
+
+            $template = $pdf->importPage(1);
+            $size = $pdf->getTemplateSize($template);
+            $pdf->addPage($size['orientation'], [$size['width'], $size['height']]);
+            $pdf->useTemplate($template);
+
+            $pdf->SetFont('Times', 'B', 45);
+
+            $nameToPrint = $user->name_certificate ?: $user->name;
+            $nameWidth = $pdf->GetStringWidth($nameToPrint);
+            $nameX = ($size['width'] - $nameWidth) / 2;
+            $pdf->SetXY($nameX, 150);
+            $pdf->Write(0, $nameToPrint);
+
+            $pdf->Line($nameX, 155, $nameX + $nameWidth, 155);
+
+            $roleText = ($abstract->presentation_type == "Oral presentation") ? "Oral presenter" : "Poster presenter";
+
+            $roleWidth = $pdf->GetStringWidth($roleText);
+            $roleX = ($size['width'] - $roleWidth) / 2;
+            $pdf->SetXY($roleX, 195);
+            $pdf->Write(0, $roleText);
+
+            $pdf->SetFont('Times', 'I', 35);
+            $pdf->SetXY(30, 230);
+            $pdf->MultiCell($size['width'] - 60, 20, $abstract->title, 0, 'C');
+
+            Storage::disk('public')->makeDirectory('certificates');
+            $certificateName = Str::random(20) . '.pdf';
+            $certificatePath = 'certificates/' . $certificateName;
+            $pdf->Output(storage_path('app/public/' . $certificatePath), 'F');
+
+            Certificate::create([
+                'user_id' => $user->id,
+                'year' => Year::activeYear(),
+                'certificate_type' => 'presenter',
+                'certificate_path' => $certificatePath,
+            ]);
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::warning("Gagal generate certificate abstract {$abstract->id}: " . $e->getMessage());
         }
-
-
-        $pdf = new Fpdi();
-        $pdf->setSourceFile($templatePath);
-
-        $template = $pdf->importPage(1);
-        $size = $pdf->getTemplateSize($template);
-        $pdf->addPage($size['orientation'], [$size['width'], $size['height']]);
-        $pdf->useTemplate($template);
-
-        $pdf->SetFont('Times', 'B', 45);
-
-        $nameToPrint = $user->name_certificate ?: $user->name;
-        $nameWidth = $pdf->GetStringWidth($nameToPrint);
-        $nameX = ($size['width'] - $nameWidth) / 2;
-        $pdf->SetXY($nameX, 150);
-        $pdf->Write(0, $nameToPrint);
-
-        $pdf->Line($nameX, 155, $nameX + $nameWidth, 155);
-
-        $roleText = ($abstract->presentation_type == "Oral presentation") ? "Oral presenter" : "Poster presenter";
-
-        $roleWidth = $pdf->GetStringWidth($roleText);
-        $roleX = ($size['width'] - $roleWidth) / 2;
-        $pdf->SetXY($roleX, 195);
-        $pdf->Write(0, $roleText);
-
-
-        $pdf->SetFont('Times', 'I', 35);
-        $pdf->SetXY(30, 230);
-        $pdf->MultiCell($size['width'] - 60, 20, $abstract->title, 0, 'C');
-
-        Storage::disk('public')->makeDirectory('certificates');
-        $certificateName = Str::random(20) . '.pdf';
-        $certificatePath = 'certificates/' . $certificateName;
-        $pdf->Output(storage_path('app/public/' . $certificatePath), 'F');
-
-        Certificate::create([
-            'user_id' => $user->id,
-            'year' => Year::activeYear(),
-            'certificate_type' => 'presenter',
-            'certificate_path' => $certificatePath,
-        ]);
     }
 
     public function viewCertificate($encryptedId, $type)

@@ -125,9 +125,13 @@ class BendaharaController extends Controller
         $filePayment->update(['status' => $newStatus]);
 
         if ($newStatus === 'verified') {
-            $user = $filePayment->user;
-            if ($user && $user->email) {
-                Mail::to($user->email)->send(new PaymentVerified($user, $filePayment));
+            try {
+                $user = $filePayment->user;
+                if ($user && $user->email) {
+                    Mail::to($user->email)->send(new PaymentVerified($user, $filePayment));
+                }
+            } catch (\Throwable $e) {
+                \Illuminate\Support\Facades\Log::warning("Gagal mengirim email PaymentVerified oleh bendahara: " . $e->getMessage());
             }
         }
 

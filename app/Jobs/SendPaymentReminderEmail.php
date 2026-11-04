@@ -27,6 +27,10 @@ class SendPaymentReminderEmail implements ShouldQueue
      */
     public function handle(): void
     {
-        Mail::to($this->user->email)->send(new PaymentReminderMail($this->user));
+        try {
+            Mail::to($this->user->email)->send(new PaymentReminderMail($this->user));
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::warning("Gagal mengirim email PaymentReminder ke {$this->user->email}: " . $e->getMessage());
+        }
     }
 }

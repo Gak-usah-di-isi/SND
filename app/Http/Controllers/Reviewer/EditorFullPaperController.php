@@ -268,9 +268,13 @@ class EditorFullPaperController extends Controller
         }
 
         if ($request->status === 'accepted') {
-            $user = $fullpaper->abstract?->user;
-            if ($user) {
-                Mail::to($user->email)->send(new FullPaperAccepted($user, $fullpaper));
+            try {
+                $user = $fullpaper->abstract?->user;
+                if ($user) {
+                    Mail::to($user->email)->send(new FullPaperAccepted($user, $fullpaper));
+                }
+            } catch (\Throwable $e) {
+                Log::warning("Gagal mengirim email acceptance full paper {$fullpaperId}: " . $e->getMessage());
             }
         }
 

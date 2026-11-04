@@ -464,7 +464,7 @@
     </nav>
 @endrole
 
-@role(['indonesia-presenter', 'foreign-presenter'])
+@role(['presenter', 'indonesia-presenter', 'foreign-presenter'])
     <nav class="sidebar sidebar-offcanvas" id="sidebar">
         <ul class="nav">
             <li class="nav-item">
@@ -489,7 +489,7 @@
     </nav>
 @endrole
 
-@role(['indonesia-participants', 'foreign-participants'])
+@role(['participant', 'indonesia-participants', 'foreign-participants'])
     <nav class="sidebar sidebar-offcanvas" id="sidebar">
         <ul class="nav">
             <li class="nav-item">

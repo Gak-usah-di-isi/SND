@@ -118,7 +118,11 @@ class FilePaymentController extends Controller
         $payment = $existingPayment ?? FilePayment::where('user_id', $user->id)->forYear($activeYear)->latest()->first();
 
         if ($payment) {
-            Mail::to($recipients)->send(new PaymentNotification($payment));
+            try {
+                Mail::to($recipients)->send(new PaymentNotification($payment));
+            } catch (\Throwable $e) {
+                \Illuminate\Support\Facades\Log::warning("Gagal mengirim email PaymentNotification: " . $e->getMessage());
+            }
         }
 
 

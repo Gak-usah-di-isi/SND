@@ -715,9 +715,6 @@ export default function UserAbstractsIndex({
           <h1 style={{ fontSize: 28, fontWeight: 700, color: '#1F2A3D', fontFamily: 'Manrope, sans-serif', margin: 0 }}>
             Pengajuan Abstrak
           </h1>
-          <p style={{ fontSize: 13.5, color: '#6B7280', margin: '4px 0 0', fontFamily: 'Manrope, sans-serif' }}>
-            Seminar Nasional Berdampak &bull; BPPM Vokasi Universitas Brawijaya
-          </p>
         </div>
 
         <div className="flex items-center gap-2 flex-wrap">

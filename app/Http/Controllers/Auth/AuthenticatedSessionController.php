@@ -42,6 +42,8 @@ class AuthenticatedSessionController extends Controller
         $roles = $user->roles->pluck('name')->toArray();
 
         $users = [
+            'presenter',
+            'participant',
             'indonesia-presenter',
             'foreign-presenter',
             'indonesia-participants',

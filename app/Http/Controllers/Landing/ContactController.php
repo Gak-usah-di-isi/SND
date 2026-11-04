@@ -93,10 +93,14 @@ class ContactController extends Controller
             'message' => $request->message,
         ];
 
-        Mail::send('emails.contact', $details, function ($message) use ($details) {
-            $message->to('admin@example.com') // Ganti dengan email tujuan
-                ->subject('New Contact Message from ' . $details['name']);
-        });
+        try {
+            Mail::send('emails.contact', $details, function ($message) use ($details) {
+                $message->to('admin@example.com') // Ganti dengan email tujuan
+                    ->subject('New Contact Message from ' . $details['name']);
+            });
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::warning("Gagal mengirim email contact form: " . $e->getMessage());
+        }
 
         return redirect()->back()->with('success', 'Your message has been sent successfully!');
     }

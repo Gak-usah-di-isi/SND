@@ -430,7 +430,7 @@ Route::middleware(['auth'])->group(function () {
     // Peserta berpindah tahun konferensi yang dilihat (arsip tahun sebelumnya).
     Route::post('viewing-year', [ViewingYearController::class, 'update'])->name('viewing-year.update');
 
-    Route::middleware(['auth', 'role:indonesia-presenter|foreign-presenter'])->group(function () {
+    Route::middleware(['auth', 'role:presenter|indonesia-presenter|foreign-presenter'])->group(function () {
         Route::get('abstracts', [AbstractController::class, 'index'])->name('abstracts.index');
         Route::get('final-paper', [FullPaperController::class, 'finalPaperIndex'])->name('finalpaper.index');
 

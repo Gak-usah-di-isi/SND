@@ -179,54 +179,62 @@ class UserController extends Controller
 
     private function generateCertificate(User $user)
     {
-        // Tentukan template sertifikat untuk peserta
-        $templateUrl = Upload::getFilePath('certificate_participant');
-        $templatePath = storage_path('app/public/' . str_replace(asset('storage/'), '', $templateUrl));
+        try {
+            // Tentukan template sertifikat untuk peserta
+            $templateUrl = Upload::getFilePath('certificate_participant');
+            if (!$templateUrl) {
+                return;
+            }
 
-        if (!file_exists($templatePath)) {
-            throw new \Exception('Certificate template not found');
+            $templatePath = storage_path('app/public/' . str_replace(asset('storage/'), '', $templateUrl));
+
+            if (!file_exists($templatePath)) {
+                return;
+            }
+
+            // Inisialisasi FPDI
+            $pdf = new Fpdi();
+            $pdf->setSourceFile($templatePath);
+            $template = $pdf->importPage(1);
+            $size = $pdf->getTemplateSize($template);
+            $pdf->addPage($size['orientation'], [$size['width'], $size['height']]);
+            $pdf->useTemplate($template);
+
+            // Menambahkan teks ke dalam template sertifikat
+            $pdf->SetFont('Times', 'B', 45); // Gunakan font Times New Roman atau Helvetica
+
+            // Menentukan posisi untuk nama penerima dan menambahkan garis bawah
+            $nameWidth = $pdf->GetStringWidth($user->name);
+            $nameX = ($size['width'] - $nameWidth) / 2;  // Memusatkan nama
+            $pdf->SetXY($nameX, 150);  // Koordinat untuk nama penerima
+            $pdf->Write(0, $user->name);
+
+            // Menambahkan garis bawah pada nama
+            $pdf->Line($nameX, 155, $nameX + $nameWidth, 155);  // Garis bawah untuk nama
+
+            // Menambahkan teks untuk institusi
+            $participantText = "Participant";  // Teks yang ingin ditampilkan
+            $participantWidth = $pdf->GetStringWidth($participantText);
+            $participantX = ($size['width'] - $participantWidth) / 2;  // Memusatkan teks
+            $pdf->SetXY($participantX, 200);  // Koordinat untuk teks
+            $pdf->Write(0, $participantText);
+
+            // Menyimpan PDF ke storage
+            Storage::disk('public')->makeDirectory('certificates');
+            $certificateName = Str::random(20) . '.pdf';  // Hash nama file
+            $certificatePath = 'certificates/' . $certificateName;
+            $pdf->Output(storage_path('app/public/' . $certificatePath), 'F');
+
+            // Menyimpan path sertifikat ke database
+            Certificate::create([
+                'user_id' => $user->id,
+                'year' => \App\Models\Year::activeYear(),
+                'certificate_type' => 'participant',
+                'certificate_path' => $certificatePath,
+            ]);
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::warning("Gagal generate certificate user {$user->id}: " . $e->getMessage());
         }
-
-        // Inisialisasi FPDI
-        $pdf = new Fpdi();
-        $pdf->setSourceFile($templatePath);
-        $template = $pdf->importPage(1);
-        $size = $pdf->getTemplateSize($template);
-        $pdf->addPage($size['orientation'], [$size['width'], $size['height']]);
-        $pdf->useTemplate($template);
-
-        // Menambahkan teks ke dalam template sertifikat
-        $pdf->SetFont('Times', 'B', 45); // Gunakan font Times New Roman atau Helvetica
-
-        // Menentukan posisi untuk nama penerima dan menambahkan garis bawah
-        $nameWidth = $pdf->GetStringWidth($user->name);
-        $nameX = ($size['width'] - $nameWidth) / 2;  // Memusatkan nama
-        $pdf->SetXY($nameX, 150);  // Koordinat untuk nama penerima
-        $pdf->Write(0, $user->name);
-
-        // Menambahkan garis bawah pada nama
-        $pdf->Line($nameX, 155, $nameX + $nameWidth, 155);  // Garis bawah untuk nama
-
-        // Menambahkan teks untuk institusi
-        $participantText = "Participant";  // Teks yang ingin ditampilkan
-        $participantWidth = $pdf->GetStringWidth($participantText);
-        $participantX = ($size['width'] - $participantWidth) / 2;  // Memusatkan teks
-        $pdf->SetXY($participantX, 200);  // Koordinat untuk teks
-        $pdf->Write(0, $participantText);
-
-        // Menyimpan PDF ke storage
-        Storage::disk('public')->makeDirectory('certificates');
-        $certificateName = Str::random(20) . '.pdf';  // Hash nama file
-        $certificatePath = 'certificates/' . $certificateName;
-        $pdf->Output(storage_path('app/public/' . $certificatePath), 'F');
-
-        // Menyimpan path sertifikat ke database
-        Certificate::create([
-            'user_id' => $user->id,
-            'year' => \App\Models\Year::activeYear(),
-            'certificate_type' => 'participant',
-            'certificate_path' => $certificatePath,
-        ]);
     }
 
     /**

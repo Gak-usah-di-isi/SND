@@ -10,7 +10,7 @@ import {
 import { Avatar, AvatarImage, AvatarFallback } from '../../Components/ui/avatar';
 import { useTheme } from '../../Components/ui/shared/ThemeContext';
 
-const PARTICIPANT_ROLES = ['indonesia-presenter', 'foreign-presenter', 'indonesia-participants', 'foreign-participants'];
+const PARTICIPANT_ROLES = ['presenter', 'participant', 'indonesia-presenter', 'foreign-presenter', 'indonesia-participants', 'foreign-participants'];
 
 export default function IcasveTopbar({ onMobileMenuClick }) {
   const { dark, toggle } = useTheme();

@@ -63,7 +63,7 @@ class ProfileController extends Controller
         }
 
         if ($originalName !== $user->name || $originalNameCertificate !== $user->name_certificate) {
-            if ($user->hasRole('indonesia-presenter') || $user->hasRole('foreign-presenter')) {
+            if ($user->hasRole('presenter') || $user->hasRole('indonesia-presenter') || $user->hasRole('foreign-presenter')) {
                 // Sertifikat harus dibuat ulang dari abstract tahun aktif, bukan
                 // abstract lama — tanpa filter ini nama di sertifikat bisa diambil
                 // dari abstract tahun sebelumnya.

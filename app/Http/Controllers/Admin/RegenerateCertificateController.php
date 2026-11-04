@@ -66,7 +66,7 @@ class RegenerateCertificateController extends Controller
         $registeredController = new RegisteredUserController();
         $registeredController->generateCertificate($user);
 
-        if ($user->hasRole('indonesia-presenter') || $user->hasRole('foreign-presenter')) {
+        if ($user->hasRole('presenter') || $user->hasRole('indonesia-presenter') || $user->hasRole('foreign-presenter')) {
             $abstract = $user->abstracts()
                 ->whereYear('created_at', $activeYear)
                 ->latest()

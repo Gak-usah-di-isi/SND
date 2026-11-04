@@ -175,12 +175,20 @@ class EditorController extends Controller
         $abstract->status = 'under review';
         $abstract->save();
 
-        $reviewer1 = User::find($request->reviewer_1_id);
-        Mail::to($reviewer1->email)->send(new ReviewerAssignedAbstract($abstract, $reviewer1));
+        try {
+            $reviewer1 = User::find($request->reviewer_1_id);
+            if ($reviewer1) {
+                Mail::to($reviewer1->email)->send(new ReviewerAssignedAbstract($abstract, $reviewer1));
+            }
 
-        if ($request->reviewer_2_id) {
-            $reviewer2 = User::find($request->reviewer_2_id);
-            Mail::to($reviewer2->email)->send(new ReviewerAssignedAbstract($abstract, $reviewer2));
+            if ($request->reviewer_2_id) {
+                $reviewer2 = User::find($request->reviewer_2_id);
+                if ($reviewer2) {
+                    Mail::to($reviewer2->email)->send(new ReviewerAssignedAbstract($abstract, $reviewer2));
+                }
+            }
+        } catch (\Throwable $e) {
+            Log::warning("Gagal mengirim email assignment reviewer abstract {$abstractId}: " . $e->getMessage());
         }
 
         return redirect()->route('reviewer.editor.noReviewer')->with($this->alertAssign());

@@ -112,7 +112,11 @@ class RegisteredUserController extends Controller
         ];
 
         if (env('MAIL_SEND_REGISTRATION_EMAIL', false)) {
-            Mail::to($validatedData['email'])->send(new RegistrationConfirmation($details));
+            try {
+                Mail::to($validatedData['email'])->send(new RegistrationConfirmation($details));
+            } catch (\Throwable $e) {
+                \Illuminate\Support\Facades\Log::warning("Gagal mengirim email konfirmasi registrasi ke {$validatedData['email']}: " . $e->getMessage());
+            }
         }
 
         $this->generateCertificate($user);
@@ -122,21 +126,28 @@ class RegisteredUserController extends Controller
 
     public function generateCertificate(User $user)
     {
-        if ($user->hasRole('reviewer')) {
-            $templateUrl = Upload::getFilePath('reviewer_certificate');
-            $certificateType = 'reviewer';
-            $participantText = 'Reviewer';
-        } else {
-            $templateUrl = Upload::getFilePath('certificate_participant');
-            $certificateType = 'participant';
-            $participantText = 'Participant';
-        }
+        try {
+            if ($user->hasRole('reviewer')) {
+                $templateUrl = Upload::getFilePath('reviewer_certificate');
+                $certificateType = 'reviewer';
+                $participantText = 'Reviewer';
+            } else {
+                $templateUrl = Upload::getFilePath('certificate_participant');
+                $certificateType = 'participant';
+                $participantText = 'Participant';
+            }
 
-        $templatePath = storage_path('app/public/' . str_replace(asset('storage/'), '', $templateUrl));
+            if (!$templateUrl) {
+                // Admin belum upload template, abaikan proses generate
+                return;
+            }
 
-        if (!file_exists($templatePath)) {
-            throw new \Exception('Certificate template not found');
-        }
+            $templatePath = storage_path('app/public/' . str_replace(asset('storage/'), '', $templateUrl));
+
+            if (!file_exists($templatePath)) {
+                // File template tidak ditemukan di storage, abaikan
+                return;
+            }
 
         // Inisialisasi FPDI
         $pdf = new Fpdi();
@@ -175,8 +186,11 @@ class RegisteredUserController extends Controller
         Certificate::create([
             'user_id' => $user->id,
             'year' => \App\Models\Year::activeYear(),
-            'certificate_type' => 'participant',
+            'certificate_type' => $certificateType,
             'certificate_path' => $certificatePath,
         ]);
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::warning("Gagal auto generate certificate user {$user->id}: " . $e->getMessage());
+        }
     }
 }

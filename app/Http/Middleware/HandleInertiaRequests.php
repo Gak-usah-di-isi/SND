@@ -100,6 +100,8 @@ class HandleInertiaRequests extends Middleware
         }
 
         return $user->roles->pluck('name')->intersect([
+            'presenter',
+            'participant',
             'indonesia-presenter',
             'foreign-presenter',
             'indonesia-participants',
