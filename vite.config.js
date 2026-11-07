@@ -10,6 +10,7 @@ export default defineConfig({
                 'resources/css/app.css',
                 'resources/js/app.js',
                 'resources/css/template.css',
+                'resources/css/landing.css',
                 'resources/js/template.jsx',
             ],
             refresh: true,

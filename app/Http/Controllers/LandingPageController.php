@@ -18,6 +18,9 @@ use App\Models\LandingSetting;
 use App\Models\ConferenceObjective;
 use App\Models\Hotel;
 use App\Models\PublicationSetting;
+use App\Models\Sdg;
+use App\Models\AbstractModel;
+use App\Models\Prevconference;
 
 class LandingPageController extends Controller
 {
@@ -26,7 +29,16 @@ class LandingPageController extends Controller
         $activeYear = $year ? LandingSetting::where('year', $year)->first() : LandingSetting::where('is_active', true)->first();
 
         if (!$activeYear) {
-            abort(404, 'Year not found');
+            // Halaman beranda harus tetap bisa dibuka walau admin belum mengatur
+            // tahun aktif. Fallback ke tahun berjalan agar landing page tidak 404.
+            if ($year) {
+                abort(404, 'Year not found');
+            }
+
+            $activeYear = (object) [
+                'year' => (int) date('Y'),
+                'is_active' => true,
+            ];
         }
         $about = About::where('year', $activeYear->year)->latest('id')->first();
 
@@ -60,6 +72,20 @@ class LandingPageController extends Controller
 
         $publication_setting = PublicationSetting::getOrDefault($activeYear->year);
 
+        // Data 17 Pilar SDGs (dipakai badge hub landing page).
+        $sdgs = Sdg::orderBy('order')->get();
+
+        // Arsip Book of Abstracts: utamakan katalog edisi sebelumnya, lalu
+        // lengkapi dengan statistik abstrak terverifikasi per tahun.
+        $archives = Prevconference::orderByDesc('year')->get();
+
+        $archiveStats = AbstractModel::query()
+            ->where('status', 'accepted')
+            ->selectRaw('YEAR(created_at) as year, COUNT(*) as total')
+            ->groupByRaw('YEAR(created_at)')
+            ->orderByDesc('year')
+            ->get();
+
         return view('landingpage.home', compact(
             'keynoteSpeakers',
             'invitedSpeakers',
@@ -80,7 +106,10 @@ class LandingPageController extends Controller
             'conference_title',
             'conference_objectives',
             'publication_setting',
-            'activeYear'
+            'activeYear',
+            'sdgs',
+            'archives',
+            'archiveStats'
         ));
     }
 
