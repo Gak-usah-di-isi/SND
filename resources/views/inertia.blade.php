@@ -19,7 +19,10 @@
         $faviconUpload = \App\Models\Upload::currentForType('logo');
         $faviconPath = $faviconUpload ? asset('storage/' . $faviconUpload->file_path) : asset('favicon.ico');
     @endphp
-    <title>{{ $activeYear ? $confAbbr . ' ' . $activeYear : $confAbbr }}</title>
+    {{-- Landing mengatur judul tab sendiri lewat <Head> di Pages/Landing/Home.jsx. --}}
+    @unless (($page['component'] ?? null) === 'Landing/Home')
+        <title>{{ $activeYear ? $confAbbr . ' ' . $activeYear : $confAbbr }}</title>
+    @endunless
     <link rel="icon" href="{{ $faviconPath }}">
     @viteReactRefresh
     @vite(['resources/css/template.css', 'resources/js/template.jsx'])
