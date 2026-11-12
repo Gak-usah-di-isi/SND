@@ -27,13 +27,87 @@ class LandingPageController extends Controller
             ];
         }
 
-        // TODO(integrasi CMS): kirim data landing di sini. Daftar key dan model
-        // sumbernya ada di resources/js/data/landingDummy.js. Selama
-        // `conference_title` belum dikirim, halaman memakai data contoh itu.
-        return Inertia::render('Landing/Home', [
-            'activeYear' => ['year' => (int) $activeYear->year, 'is_active' => (bool) $activeYear->is_active],
-            'routeYear' => $year ? (int) $year : null,
-        ]);
+        $selectedYear = (int) $activeYear->year;
+
+        // Setiap section beranda punya method sendiri di bawah (lihat docs/taks-new).
+        // Key yang dikirim menimpa data contoh di resources/js/data/landingDummy.js;
+        // key yang belum dikirim tetap memakai data contoh.
+        return Inertia::render('Landing/Home', array_merge(
+            [
+                'activeYear' => ['year' => $selectedYear, 'is_active' => (bool) $activeYear->is_active],
+                'routeYear' => $year ? (int) $year : null,
+            ],
+            $this->heroProps($selectedYear),
+            $this->aboutProps($selectedYear),
+            $this->sdgProps(),
+            $this->speakerProps($selectedYear),
+            $this->themeProps($selectedYear),
+            $this->timelineProps($selectedYear),
+            $this->venueProps($selectedYear),
+            $this->hostProps($selectedYear),
+            $this->faqProps($selectedYear),
+            $this->contactProps($selectedYear),
+        ));
+    }
+
+    // TODO(rafif, task 04): conference_title, conference_abbreviation, logo.
+    private function heroProps(int $year): array
+    {
+        return [];
+    }
+
+    // TODO(rafif, task 02): about.
+    private function aboutProps(int $year): array
+    {
+        return [];
+    }
+
+    // TODO(rafif, task 03): sdgs.
+    private function sdgProps(): array
+    {
+        return [];
+    }
+
+    // TODO(sasa, task 04): keynoteSpeakers, invitedSpeakers.
+    private function speakerProps(int $year): array
+    {
+        return [];
+    }
+
+    // TODO(sasa, task 03): themes.
+    private function themeProps(int $year): array
+    {
+        return [];
+    }
+
+    // TODO(tita, task 03): deadline_date, posters.
+    private function timelineProps(int $year): array
+    {
+        return [];
+    }
+
+    // TODO(tita, task 02): venues.
+    private function venueProps(int $year): array
+    {
+        return [];
+    }
+
+    // TODO(sasa, task 01): hosted_by, co_hosted_by, supported_by.
+    private function hostProps(int $year): array
+    {
+        return [];
+    }
+
+    // TODO(sasa, task 02): faqs.
+    private function faqProps(int $year): array
+    {
+        return [];
+    }
+
+    // TODO(tita, task 01): contacts.
+    private function contactProps(int $year): array
+    {
+        return [];
     }
 
 
