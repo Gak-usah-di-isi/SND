@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use App\Models\LandingSetting;
+use App\Models\Sdg;
 use App\Models\Theme;
 use App\Models\Hotel;
 
@@ -62,10 +63,11 @@ class LandingPageController extends Controller
         return [];
     }
 
-    // TODO(rafif, task 03): sdgs.
+    // SDGs berlaku lintas tahun; urutan mengikuti kolom `order` agar ikon
+    // dan pita warna sama dengan urutan resmi.
     private function sdgProps(): array
     {
-        return [];
+        return ['sdgs' => Sdg::orderBy('order')->get(['id', 'order', 'code', 'name_id', 'color'])];
     }
 
     // TODO(sasa, task 04): keynoteSpeakers, invitedSpeakers.
