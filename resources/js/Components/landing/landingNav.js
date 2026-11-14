@@ -5,6 +5,7 @@
 export function buildRoutes(year) {
     return {
         home: year ? `/${year}` : '/',
+        steering: '/committee/steering',
         contact: '/contact',
         login: '/login',
         register: '/register',
@@ -18,7 +19,7 @@ export function buildNav(r) {
         {
             label: 'Komite',
             children: [
-                { label: 'Komite Pengarah', disabled: true },
+                { label: 'Komite Pengarah', href: r.steering },
                 { label: 'Komite Reviewer', disabled: true },
                 { label: 'Panitia Pelaksana', disabled: true },
             ],
