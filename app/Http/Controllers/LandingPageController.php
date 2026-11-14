@@ -4,8 +4,11 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Inertia\Inertia;
+use App\Models\ConferenceSetting;
+use App\Models\ConferenceTitle;
 use App\Models\LandingSetting;
 use App\Models\Theme;
+use App\Models\Upload;
 use App\Models\Hotel;
 
 class LandingPageController extends Controller
@@ -50,10 +53,17 @@ class LandingPageController extends Controller
         ));
     }
 
-    // TODO(rafif, task 04): conference_title, conference_abbreviation, logo.
+    // Judul dan singkatan dari editor landing / pengaturan konferensi;
+    // logo null berarti header memakai logo UB.
     private function heroProps(int $year): array
     {
-        return [];
+        $title = ConferenceTitle::where('year', $year)->first(['id', 'title', 'description', 'year']);
+
+        return [
+            'conference_title' => $title,
+            'conference_abbreviation' => ConferenceSetting::first()?->conference_abbreviation ?: 'Seminar DAMPAK',
+            'logo' => Upload::currentForType('logo')?->file_path,
+        ];
     }
 
     // TODO(rafif, task 02): about.
