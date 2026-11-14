@@ -10,7 +10,6 @@ import VenueSection from '../../Components/landing/sections/VenueSection';
 import HostsSection from '../../Components/landing/sections/HostsSection';
 import FaqSection from '../../Components/landing/sections/FaqSection';
 import ContactSection from '../../Components/landing/sections/ContactSection';
-import { landingDummy } from '../../data/landingDummy';
 
 /*
  * Beranda Seminar DAMPAK, dibangun dengan shadcn/ui (Components/landing/ui).
@@ -20,30 +19,23 @@ import { landingDummy } from '../../data/landingDummy';
  * Arah desain: bersih dan lapang. Latar putih dan krem bergantian, tinta navy,
  * emas hanya untuk aksen. Motif identitas: pita 17 warna SDGs (Sdg.color) di
  * hero dan footer, plus stabilo emas di satu kata per judul.
+ *
+ * Semua data dikirim LandingPageController@index. Section yang datanya kosong
+ * menyembunyikan diri, jadi beranda tetap utuh saat admin belum mengisi apa pun.
  */
 
 export default function Home(props) {
-    // Data contoh dipakai PER KEY: key yang sudah dikirim controller menimpa dummy,
-    // jadi section bisa diintegrasikan satu per satu tanpa section lain hilang.
-    const data = { ...landingDummy, ...props };
+    const data = props;
 
     const year = data.activeYear?.year ?? new Date().getFullYear();
-    const abbreviation = data.conference_abbreviation ?? landingDummy.conference_abbreviation;
+    const abbreviation = data.conference_abbreviation ?? 'Seminar DAMPAK';
     const routes = buildRoutes(props.routeYear ?? null);
-
-    // Controller beranda belum mengirim `layout`, jadi susun dari data yang ada.
-    const layout = {
-        abbreviation,
-        year,
-        logo: data.logo ?? null,
-        sdgs: data.sdgs ?? [],
-    };
 
     return (
         <LandingLayout
             title="Seminar Dampak"
             current="Beranda"
-            layout={layout}
+            layout={data.layout}
             routeYear={props.routeYear ?? null}
             description={`${abbreviation} ${year}: ${data.conference_title?.title ?? ''}. BPPM Fakultas Vokasi Universitas Brawijaya.`}
         >

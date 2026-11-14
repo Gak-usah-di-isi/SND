@@ -1,13 +1,20 @@
 // Rute dan menu landing, dipakai bersama oleh semua halaman landing.
-// Menu yang halamannya belum jadi diberi `disabled: true` (href="#", tidak berpindah halaman).
-// Saat halamannya selesai: hapus `disabled: true` dan isi `href`.
+// Semua menu sudah punya halaman tujuan; label yang sama dengan halaman aktif
+// ditandai lewat withCurrent().
 
 export function buildRoutes(year) {
     return {
         home: year ? `/${year}` : '/',
         steering: '/committee/steering',
         reviewer: '/committee/reviewer',
+        organizing: '/committee/organizing',
+        abstract: '/submission/abstract',
+        presentation: '/submission/presentation',
         gallery: '/gallery',
+        program: '/conference-program',
+        archives: '/archives',
+        previous: '/previous-conference',
+        faq: '/faq',
         contact: '/contact',
         login: '/login',
         register: '/register',
@@ -24,7 +31,6 @@ function withCurrent(item, current) {
     };
 }
 
-// Menu selain Beranda dan Kontak belum dibuka (disabled -> href="#").
 export function buildNav(r, current) {
     return [
         { label: 'Beranda', href: r.home },
@@ -33,21 +39,21 @@ export function buildNav(r, current) {
             children: [
                 { label: 'Komite Pengarah', href: r.steering },
                 { label: 'Komite Reviewer', href: r.reviewer },
-                { label: 'Panitia Pelaksana', disabled: true },
+                { label: 'Panitia Pelaksana', href: r.organizing },
             ],
         },
         {
             label: 'Submisi',
             children: [
-                { label: 'Panduan Abstrak', disabled: true },
-                { label: 'Panduan Presentasi', disabled: true },
+                { label: 'Panduan Abstrak', href: r.abstract },
+                { label: 'Panduan Presentasi', href: r.presentation },
             ],
         },
         { label: 'Galeri', href: r.gallery },
-        { label: 'Program', disabled: true },
-        { label: 'Arsip', disabled: true },
-        { label: 'Seminar Sebelumnya', disabled: true },
-        { label: 'FAQ', disabled: true },
+        { label: 'Program', href: r.program },
+        { label: 'Arsip', href: r.archives },
+        { label: 'Seminar Sebelumnya', href: r.previous },
+        { label: 'FAQ', href: r.faq },
         { label: 'Kontak', href: r.contact },
     ].map((item) => withCurrent(item, current));
 }
