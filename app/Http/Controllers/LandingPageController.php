@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Inertia\Inertia;
+use App\Models\About;
 use App\Models\LandingSetting;
 use App\Models\Theme;
 use App\Models\Hotel;
@@ -56,10 +57,13 @@ class LandingPageController extends Controller
         return [];
     }
 
-    // TODO(rafif, task 02): about.
+    // About diambil dari editor landing; bila tahun aktif belum diisi,
+    // section Tentang menyembunyikan diri (null).
     private function aboutProps(int $year): array
     {
-        return [];
+        $about = About::where('year', $year)->latest('id')->first();
+
+        return ['about' => $about?->only(['id', 'title', 'content', 'image'])];
     }
 
     // TODO(rafif, task 03): sdgs.
