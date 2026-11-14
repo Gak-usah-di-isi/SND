@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\ReviewerCommittee;
 use App\Models\LandingSetting;
+use App\Support\LandingLayoutData;
 use Inertia\Inertia;
 
 class ReviewerCommitteeController extends Controller
@@ -20,7 +21,10 @@ class ReviewerCommitteeController extends Controller
             ->orderBy('id', 'asc')
             ->get();
 
-        return view('landingpage.committee.reviewer', compact('reviewers', 'selectedYear'));
+        return Inertia::render('Landing/Committee/Reviewer', array_merge(LandingLayoutData::props(), [
+            'reviewers' => $reviewers->map->only(['id', 'name', 'institution', 'country']),
+            'selectedYear' => (int) $selectedYear,
+        ]));
     }
 
     public function index(Request $request)
