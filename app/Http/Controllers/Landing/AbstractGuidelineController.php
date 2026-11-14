@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\AbstractGuideline;
 use App\Models\LandingSetting;
+use App\Support\LandingLayoutData;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 
@@ -19,7 +20,14 @@ class AbstractGuidelineController extends Controller
 
         $latestGuideline = AbstractGuideline::where('year', $selectedYear)->first();
 
-        return view('landingpage.submission.abstract', compact('latestGuideline', 'years', 'selectedYear'));
+        return Inertia::render('Landing/Submission/AbstractGuideline', array_merge(LandingLayoutData::props(), [
+            'guideline' => $latestGuideline ? [
+                'content' => $latestGuideline->content,
+                'pdf_file' => $latestGuideline->pdf_file,
+                'year' => $latestGuideline->year,
+            ] : null,
+            'selectedYear' => $selectedYear,
+        ]));
     }
 
 
