@@ -1,7 +1,5 @@
-import { Head } from '@inertiajs/react';
-import LandingHeader from '../../Components/landing/LandingHeader';
-import LandingFooter from '../../Components/landing/LandingFooter';
-import { buildNav, buildRoutes } from '../../Components/landing/landingNav';
+import LandingLayout from '../../Components/landing/LandingLayout';
+import { buildRoutes } from '../../Components/landing/landingNav';
 import HeroSection from '../../Components/landing/sections/HeroSection';
 import AboutSection from '../../Components/landing/sections/AboutSection';
 import SdgsSection from '../../Components/landing/sections/SdgsSection';
@@ -33,42 +31,39 @@ export default function Home(props) {
     const abbreviation = data.conference_abbreviation ?? landingDummy.conference_abbreviation;
     const routes = buildRoutes(props.routeYear ?? null);
 
+    // Controller beranda belum mengirim `layout`, jadi susun dari data yang ada.
+    const layout = {
+        abbreviation,
+        year,
+        logo: data.logo ?? null,
+        sdgs: data.sdgs ?? [],
+    };
+
     return (
-        <div className="min-h-screen overflow-x-clip bg-white text-base leading-relaxed text-sd-ink antialiased">
-            <Head title="Seminar Dampak">
-                <meta name="description" content={`${abbreviation} ${year}: ${data.conference_title?.title ?? ''}. BPPM Fakultas Vokasi Universitas Brawijaya.`} />
-            </Head>
-
-            <a
-                className="sr-only rounded-full bg-sd-ink px-5 py-2.5 font-semibold !text-white focus:not-sr-only focus:fixed focus:left-4 focus:top-3 focus:z-[100] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sd-gold"
-                href="#konten"
-            >
-                Lewati ke konten
-            </a>
-
-            <LandingHeader nav={buildNav(routes)} brand={{ href: routes.home, logo: data.logo, alt: `${abbreviation} ${year}, Universitas Brawijaya` }} actions={{ login: routes.login }} />
-
-            <main id="konten" className="scroll-mt-24">
-                <HeroSection title={data.conference_title} abbreviation={abbreviation} year={year} routes={routes} sdgs={data.sdgs} />
-                <AboutSection about={data.about} />
-                <SdgsSection sdgs={data.sdgs} />
-                <SpeakersSection keynote={data.keynoteSpeakers} invited={data.invitedSpeakers} abbreviation={abbreviation} year={year} />
-                {/* Link detail subtema baru aktif saat themes sudah dikirim dari database (id-nya nyata). */}
-                <ThemesSection themes={data.themes} linkable={Boolean(props.themes)} />
-                <TimelineSection dates={data.deadline_date} posters={data.posters} />
-                <VenueSection venues={data.venues} />
-                <HostsSection
-                    groups={[
-                        { label: 'Penyelenggara', items: data.hosted_by },
-                        { label: 'Mitra penyelenggara', items: data.co_hosted_by },
-                        { label: 'Didukung oleh', items: data.supported_by },
-                    ]}
-                />
-                <FaqSection faqs={data.faqs} />
-                <ContactSection contact={data.contacts?.[0] ?? null} />
-            </main>
-
-            <LandingFooter name={abbreviation} year={year} sdgs={data.sdgs} />
-        </div>
+        <LandingLayout
+            title="Seminar Dampak"
+            current="Beranda"
+            layout={layout}
+            routeYear={props.routeYear ?? null}
+            description={`${abbreviation} ${year}: ${data.conference_title?.title ?? ''}. BPPM Fakultas Vokasi Universitas Brawijaya.`}
+        >
+            <HeroSection title={data.conference_title} abbreviation={abbreviation} year={year} routes={routes} sdgs={data.sdgs} />
+            <AboutSection about={data.about} />
+            <SdgsSection sdgs={data.sdgs} />
+            <SpeakersSection keynote={data.keynoteSpeakers} invited={data.invitedSpeakers} abbreviation={abbreviation} year={year} />
+            {/* Link detail subtema baru aktif saat themes sudah dikirim dari database (id-nya nyata). */}
+            <ThemesSection themes={data.themes} linkable={Boolean(props.themes)} />
+            <TimelineSection dates={data.deadline_date} posters={data.posters} />
+            <VenueSection venues={data.venues} />
+            <HostsSection
+                groups={[
+                    { label: 'Penyelenggara', items: data.hosted_by },
+                    { label: 'Mitra penyelenggara', items: data.co_hosted_by },
+                    { label: 'Didukung oleh', items: data.supported_by },
+                ]}
+            />
+            <FaqSection faqs={data.faqs} />
+            <ContactSection contact={data.contacts?.[0] ?? null} />
+        </LandingLayout>
     );
 }
