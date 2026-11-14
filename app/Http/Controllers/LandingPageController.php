@@ -7,6 +7,8 @@ use Inertia\Inertia;
 use App\Models\LandingSetting;
 use App\Models\Theme;
 use App\Models\Hotel;
+use App\Models\Contact;
+use App\Models\Venue;
 
 class LandingPageController extends Controller
 {
@@ -89,7 +91,20 @@ class LandingPageController extends Controller
     // TODO(tita, task 02): venues.
     private function venueProps(int $year): array
     {
-        return [];
+        return [
+            'venues' => Venue::where('year', $year)->get([
+                'id',
+                'image_path',
+                'venue_name',
+                'address',
+                'date',
+                'link_map',
+                'map',
+                'conference_mode',
+                'onsite_programme',
+                'online_programme',
+            ]),
+        ];
     }
 
     // TODO(sasa, task 01): hosted_by, co_hosted_by, supported_by.
@@ -107,7 +122,17 @@ class LandingPageController extends Controller
     // TODO(tita, task 01): contacts.
     private function contactProps(int $year): array
     {
-        return [];
+        return [
+            'contacts' => Contact::where('year', $year)->get([
+                'id',
+                'phone1',
+                'phone1_name',
+                'phone2',
+                'phone2_name',
+                'email',
+                'address',
+            ]),
+        ];
     }
 
 
