@@ -4,9 +4,11 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Inertia\Inertia;
+use App\Models\About;
 use App\Models\ConferenceSetting;
 use App\Models\ConferenceTitle;
 use App\Models\LandingSetting;
+use App\Models\Sdg;
 use App\Models\Theme;
 use App\Models\Upload;
 use App\Models\Hotel;
@@ -66,16 +68,20 @@ class LandingPageController extends Controller
         ];
     }
 
-    // TODO(rafif, task 02): about.
+    // About diambil dari editor landing; bila tahun aktif belum diisi,
+    // section Tentang menyembunyikan diri (null).
     private function aboutProps(int $year): array
     {
-        return [];
+        $about = About::where('year', $year)->latest('id')->first();
+
+        return ['about' => $about?->only(['id', 'title', 'content', 'image'])];
     }
 
-    // TODO(rafif, task 03): sdgs.
+    // SDGs berlaku lintas tahun; urutan mengikuti kolom `order` agar ikon
+    // dan pita warna sama dengan urutan resmi.
     private function sdgProps(): array
     {
-        return [];
+        return ['sdgs' => Sdg::orderBy('order')->get(['id', 'order', 'code', 'name_id', 'color'])];
     }
 
     // TODO(sasa, task 04): keynoteSpeakers, invitedSpeakers.
