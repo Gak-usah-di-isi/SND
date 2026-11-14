@@ -5,6 +5,7 @@
 export function buildRoutes(year) {
     return {
         home: year ? `/${year}` : '/',
+        gallery: '/gallery',
         contact: '/contact',
         login: '/login',
         register: '/register',
@@ -30,7 +31,7 @@ export function buildNav(r) {
                 { label: 'Panduan Presentasi', disabled: true },
             ],
         },
-        { label: 'Galeri', disabled: true },
+        { label: 'Galeri', href: r.gallery },
         { label: 'Program', disabled: true },
         { label: 'Arsip', disabled: true },
         { label: 'Seminar Sebelumnya', disabled: true },
