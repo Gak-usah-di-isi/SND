@@ -145,11 +145,11 @@ export default function PosterIndex() {
       )}
 
       <ConfirmDialog
-        isOpen={isDeleteDialogOpen}
+        open={isDeleteDialogOpen}
         title="Delete Poster"
         message={`Are you sure you want to delete the poster for year ${selectedPoster?.year}?`}
         onConfirm={handleDelete}
-        onCancel={() => setIsDeleteDialogOpen(false)}
+        onClose={() => setIsDeleteDialogOpen(false)}
       />
     </LandingEditorPageLayout>
   );
