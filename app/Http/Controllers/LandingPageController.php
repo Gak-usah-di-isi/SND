@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Inertia\Inertia;
+use App\Models\About;
 use App\Models\LandingSetting;
 use App\Models\Sdg;
 use App\Models\Theme;
@@ -57,10 +58,13 @@ class LandingPageController extends Controller
         return [];
     }
 
-    // TODO(rafif, task 02): about.
+    // About diambil dari editor landing; bila tahun aktif belum diisi,
+    // section Tentang menyembunyikan diri (null).
     private function aboutProps(int $year): array
     {
-        return [];
+        $about = About::where('year', $year)->latest('id')->first();
+
+        return ['about' => $about?->only(['id', 'title', 'content', 'image'])];
     }
 
     // SDGs berlaku lintas tahun; urutan mengikuti kolom `order` agar ikon
