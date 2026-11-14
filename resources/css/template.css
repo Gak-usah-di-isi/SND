@@ -84,3 +84,197 @@ p, span, div, a, button, input, td, th, li {
   .rounded-md { border-radius: 9px; }
   .rounded-lg { border-radius: 24px; }
 }
+
+/*
+ * Token landing Seminar DAMPAK (resources/js/Pages/Landing).
+ * Navy dan emas diambil dari logo Vokasi UB. Latar "paper" yang hangat
+ * membedakan landing dari dasbor. Emas hanya untuk motif stabilo dan satu CTA.
+ */
+@theme {
+  --color-sd-ink: #15224a;
+  --color-sd-ink-soft: #2a3866;
+  --color-sd-paper: #faf8f3;
+  --color-sd-paper-deep: #f2eee4;
+  --color-sd-line: #e2ddd0;
+  --color-sd-muted: #535b6e;
+  --color-sd-gold: #f2b32b;
+  --color-sd-gold-soft: #fbe7b5;
+  /* Emas tua untuk teks (menu aktif): kontras sekitar 5:1 di atas sd-paper. */
+  --color-sd-gold-ink: #8a6100;
+}
+
+/* Motif stabilo: emas hanya di bagian bawah huruf, teks tetap navy. */
+@utility sd-mark {
+  color: inherit;
+  padding: 0 0.06em;
+  background: linear-gradient(transparent 58%, var(--color-sd-gold) 58%, var(--color-sd-gold) 92%, transparent 92%);
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+}
+
+/*
+ * Bagan pembicara landing (gaya struktur organisasi): garis jalur dari node induk
+ * ke setiap kartu di bawahnya. Desktop: cabang horizontal. Di bawah 1024px:
+ * pohon vertikal dengan garis di kiri agar tidak meluber ke samping.
+ */
+.sd-tree {
+  --sd-tree-line: #cfc8b8;
+  --sd-tree-gap: 28px;
+}
+
+.sd-tree-stem {
+  width: 2px;
+  height: var(--sd-tree-gap);
+  margin-inline: auto;
+  background: var(--sd-tree-line);
+}
+
+.sd-tree-row {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  padding-top: var(--sd-tree-gap);
+}
+
+.sd-tree-row::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 50%;
+  height: var(--sd-tree-gap);
+  border-left: 2px solid var(--sd-tree-line);
+}
+
+.sd-tree-row > li {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  flex: 1 1 0;
+  min-width: 0;
+  padding: var(--sd-tree-gap) 10px 0;
+}
+
+.sd-tree-row > li::before,
+.sd-tree-row > li::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  width: 50%;
+  height: var(--sd-tree-gap);
+  border-top: 2px solid var(--sd-tree-line);
+}
+
+.sd-tree-row > li::before { right: 50%; }
+.sd-tree-row > li::after { left: 50%; border-left: 2px solid var(--sd-tree-line); }
+
+.sd-tree-row > li:first-child::before,
+.sd-tree-row > li:last-child::after { border: 0 none; }
+
+.sd-tree-row > li:last-child::before {
+  border-right: 2px solid var(--sd-tree-line);
+  border-top-right-radius: 14px;
+}
+
+.sd-tree-row > li:first-child::after { border-top-left-radius: 14px; }
+
+.sd-tree-row > li:only-child::before { display: none; }
+.sd-tree-row > li:only-child::after { border-top: 0; border-radius: 0; }
+
+/* Gabungan: garis turun dari bawah tiap kartu, menyatu, lalu turun ke kelompok berikutnya. */
+.sd-tree-join {
+  position: relative;
+  display: flex;
+  padding-bottom: var(--sd-tree-gap);
+}
+
+.sd-tree-join::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  height: var(--sd-tree-gap);
+  border-left: 2px solid var(--sd-tree-line);
+}
+
+.sd-tree-join > span {
+  position: relative;
+  flex: 1 1 0;
+  min-width: 0;
+  height: var(--sd-tree-gap);
+}
+
+.sd-tree-join > span::before,
+.sd-tree-join > span::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  width: 50%;
+  height: 100%;
+  border-bottom: 2px solid var(--sd-tree-line);
+}
+
+.sd-tree-join > span::before { right: 50%; }
+.sd-tree-join > span::after { left: 50%; border-left: 2px solid var(--sd-tree-line); }
+
+.sd-tree-join > span:first-child::before,
+.sd-tree-join > span:last-child::after { border: 0 none; }
+
+.sd-tree-join > span:last-child::before {
+  border-right: 2px solid var(--sd-tree-line);
+  border-bottom-right-radius: 14px;
+}
+
+.sd-tree-join > span:first-child::after { border-bottom-left-radius: 14px; }
+
+.sd-tree-join > span:only-child::before { display: none; }
+.sd-tree-join > span:only-child::after { border-bottom: 0; border-radius: 0; }
+
+@media (max-width: 1023px) {
+  /* Pohon vertikal: garis di kiri (x = 11px), cabang pendek ke tiap kartu setinggi --sd-tick. */
+  .sd-tree-stem { margin-inline: 0; margin-left: 11px; }
+  .sd-tree-join { display: none; }
+
+  .sd-tree-row {
+    flex-direction: column;
+    padding: 0 0 0 36px;
+  }
+
+  .sd-tree-row::before { display: none; }
+
+  .sd-tree-row > li {
+    justify-content: flex-start;
+    padding: 16px 0 0;
+  }
+
+  .sd-tree-row > li::before,
+  .sd-tree-row > li:first-child::before,
+  .sd-tree-row > li:only-child::before {
+    display: block;
+    top: 0;
+    left: -25px;
+    right: auto;
+    width: 0;
+    height: 100%;
+    border: 0;
+    border-left: 2px solid var(--sd-tree-line);
+    border-radius: 0;
+  }
+
+  .sd-tree-row > li:last-child::before { height: var(--sd-tick, 60px); }
+  /* Baris yang masih punya kelompok di bawahnya: garis terus turun ke label berikutnya. */
+  .sd-tree-row--continue > li:last-child::before { height: 100%; }
+
+  .sd-tree-row > li::after,
+  .sd-tree-row > li:first-child::after,
+  .sd-tree-row > li:last-child::after,
+  .sd-tree-row > li:only-child::after {
+    display: block;
+    top: var(--sd-tick, 60px);
+    left: -25px;
+    width: 25px;
+    height: 0;
+    border: 0;
+    border-top: 2px solid var(--sd-tree-line);
+    border-radius: 0;
+  }
+}

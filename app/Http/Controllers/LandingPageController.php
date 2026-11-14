@@ -3,21 +3,15 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\Speaker;
-use App\Models\RegistrationFee;
-use App\Models\PublicationsJournal;
-use App\Models\Venue;
-use App\Models\DeadlineDate;
+use Inertia\Inertia;
 use App\Models\About;
-use App\Models\Poster;
-use App\Models\Contact;
-use App\Models\Faq;
-use App\Models\Theme;
+use App\Models\ConferenceSetting;
 use App\Models\ConferenceTitle;
 use App\Models\LandingSetting;
-use App\Models\ConferenceObjective;
+use App\Models\Sdg;
+use App\Models\Theme;
+use App\Models\Upload;
 use App\Models\Hotel;
-use App\Models\PublicationSetting;
 
 class LandingPageController extends Controller
 {
@@ -26,62 +20,110 @@ class LandingPageController extends Controller
         $activeYear = $year ? LandingSetting::where('year', $year)->first() : LandingSetting::where('is_active', true)->first();
 
         if (!$activeYear) {
-            abort(404, 'Year not found');
+            // Halaman beranda harus tetap bisa dibuka walau admin belum mengatur
+            // tahun aktif. Fallback ke tahun berjalan agar landing page tidak 404.
+            if ($year) {
+                abort(404, 'Year not found');
+            }
+
+            $activeYear = (object) [
+                'year' => (int) date('Y'),
+                'is_active' => true,
+            ];
         }
-        $about = About::where('year', $activeYear->year)->latest('id')->first();
 
-        $keynoteSpeakers = Speaker::whereIn('role', ['keynote_speaker', 'Keynote Speaker'])
-            ->where('year', $activeYear->year)
-            ->get();
+        $selectedYear = (int) $activeYear->year;
 
-        $invitedSpeakers = Speaker::whereIn('role', ['invited_speaker', 'Invited Speaker'])
-            ->where('year', $activeYear->year)
-            ->get();
-        $posters = Poster::where('year', $activeYear->year)->get();
-        $deadline_date = DeadlineDate::where('year', $activeYear->year)->get();
-        $presenter = RegistrationFee::where('role_type', 'presenter')->where('year', $activeYear->year)->orderBy('period_of_payment', 'asc')->get();
-        $non_presenter = RegistrationFee::where('role_type', 'non_presenter')->where('year', $activeYear->year)->orderBy('period_of_payment', 'asc')->get();
-        $additional_fee = RegistrationFee::where('role_type', 'additional_fee')->where('year', $activeYear->year)->orderBy('period_of_payment', 'asc')->get();
-        $publications_journal = PublicationsJournal::where('image_type', 'publications_journal')->where('year', $activeYear->year)->get();
-        $hosted_by = PublicationsJournal::where('image_type', 'hosted_by')->where('year', $activeYear->year)->get();
-        $co_hosted_by = PublicationsJournal::where('image_type', 'co_hosted_by')->where('year', $activeYear->year)->get();
-        $supported_by = PublicationsJournal::where('image_type', 'supported_by')->where('year', $activeYear->year)->get();
-        $venues = Venue::where('year', $activeYear->year)->get();
-
-        $contacts = Contact::where('year', $activeYear->year)->get();
-
-        $themes = Theme::where('year', $activeYear->year)->orderBy('year', 'desc')->get();
-        $faqs = Faq::whereYear('created_at', $activeYear->year)->limit(3)->get();
-        $conference_title = ConferenceTitle::where('year', $activeYear->year)->orderByDesc('year')->first();
-        $conference_objectives = ConferenceObjective::where('year', $activeYear->year)
-            ->where('is_active', true)
-            ->orderBy('order_number')
-            ->get();
-
-        $publication_setting = PublicationSetting::getOrDefault($activeYear->year);
-
-        return view('landingpage.home', compact(
-            'keynoteSpeakers',
-            'invitedSpeakers',
-            'presenter',
-            'non_presenter',
-            'additional_fee',
-            'publications_journal',
-            'hosted_by',
-            'co_hosted_by',
-            'supported_by',
-            'venues',
-            'deadline_date',
-            'contacts',
-            'posters',
-            'about',
-            'themes',
-            'faqs',
-            'conference_title',
-            'conference_objectives',
-            'publication_setting',
-            'activeYear'
+        // Setiap section beranda punya method sendiri di bawah (lihat docs/taks-new).
+        // Key yang dikirim menimpa data contoh di resources/js/data/landingDummy.js;
+        // key yang belum dikirim tetap memakai data contoh.
+        return Inertia::render('Landing/Home', array_merge(
+            [
+                'activeYear' => ['year' => $selectedYear, 'is_active' => (bool) $activeYear->is_active],
+                'routeYear' => $year ? (int) $year : null,
+            ],
+            $this->heroProps($selectedYear),
+            $this->aboutProps($selectedYear),
+            $this->sdgProps(),
+            $this->speakerProps($selectedYear),
+            $this->themeProps($selectedYear),
+            $this->timelineProps($selectedYear),
+            $this->venueProps($selectedYear),
+            $this->hostProps($selectedYear),
+            $this->faqProps($selectedYear),
+            $this->contactProps($selectedYear),
         ));
+    }
+
+    // Judul dan singkatan dari editor landing / pengaturan konferensi;
+    // logo null berarti header memakai logo UB.
+    private function heroProps(int $year): array
+    {
+        $title = ConferenceTitle::where('year', $year)->first(['id', 'title', 'description', 'year']);
+
+        return [
+            'conference_title' => $title,
+            'conference_abbreviation' => ConferenceSetting::first()?->conference_abbreviation ?: 'Seminar DAMPAK',
+            'logo' => Upload::currentForType('logo')?->file_path,
+        ];
+    }
+
+    // About diambil dari editor landing; bila tahun aktif belum diisi,
+    // section Tentang menyembunyikan diri (null).
+    private function aboutProps(int $year): array
+    {
+        $about = About::where('year', $year)->latest('id')->first();
+
+        return ['about' => $about?->only(['id', 'title', 'content', 'image'])];
+    }
+
+    // SDGs berlaku lintas tahun; urutan mengikuti kolom `order` agar ikon
+    // dan pita warna sama dengan urutan resmi.
+    private function sdgProps(): array
+    {
+        return ['sdgs' => Sdg::orderBy('order')->get(['id', 'order', 'code', 'name_id', 'color'])];
+    }
+
+    // TODO(sasa, task 04): keynoteSpeakers, invitedSpeakers.
+    private function speakerProps(int $year): array
+    {
+        return [];
+    }
+
+    // TODO(sasa, task 03): themes.
+    private function themeProps(int $year): array
+    {
+        return [];
+    }
+
+    // TODO(tita, task 03): deadline_date, posters.
+    private function timelineProps(int $year): array
+    {
+        return [];
+    }
+
+    // TODO(tita, task 02): venues.
+    private function venueProps(int $year): array
+    {
+        return [];
+    }
+
+    // TODO(sasa, task 01): hosted_by, co_hosted_by, supported_by.
+    private function hostProps(int $year): array
+    {
+        return [];
+    }
+
+    // TODO(sasa, task 02): faqs.
+    private function faqProps(int $year): array
+    {
+        return [];
+    }
+
+    // TODO(tita, task 01): contacts.
+    private function contactProps(int $year): array
+    {
+        return [];
     }
 
 
