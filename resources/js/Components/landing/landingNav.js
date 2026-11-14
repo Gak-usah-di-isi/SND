@@ -11,10 +11,20 @@ export function buildRoutes(year) {
     };
 }
 
+// Item yang label-nya sama dengan halaman aktif ditandai `current: true`,
+// termasuk anak menu, supaya header bisa menyorotnya.
+function withCurrent(item, current) {
+    return {
+        ...item,
+        ...(item.label === current ? { current: true } : {}),
+        ...(item.children ? { children: item.children.map((child) => withCurrent(child, current)) } : {}),
+    };
+}
+
 // Menu selain Beranda dan Kontak belum dibuka (disabled -> href="#").
-export function buildNav(r) {
+export function buildNav(r, current) {
     return [
-        { label: 'Beranda', href: r.home, current: true },
+        { label: 'Beranda', href: r.home },
         {
             label: 'Komite',
             children: [
@@ -36,5 +46,5 @@ export function buildNav(r) {
         { label: 'Seminar Sebelumnya', disabled: true },
         { label: 'FAQ', disabled: true },
         { label: 'Kontak', href: r.contact },
-    ];
+    ].map((item) => withCurrent(item, current));
 }
