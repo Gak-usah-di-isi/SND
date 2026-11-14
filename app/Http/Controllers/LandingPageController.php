@@ -7,6 +7,8 @@ use Inertia\Inertia;
 use App\Models\LandingSetting;
 use App\Models\Theme;
 use App\Models\Hotel;
+use App\Models\DeadlineDate;
+use App\Models\Poster;
 
 class LandingPageController extends Controller
 {
@@ -83,7 +85,13 @@ class LandingPageController extends Controller
     // TODO(tita, task 03): deadline_date, posters.
     private function timelineProps(int $year): array
     {
-        return [];
+        return [
+            'deadline_date' => DeadlineDate::where('year', $year)
+                ->orderBy('date')
+                ->get(['id', 'name', 'date']),
+            'posters' => Poster::where('year', $year)
+                ->get(['id', 'image', 'link']),
+        ];
     }
 
     // TODO(tita, task 02): venues.
