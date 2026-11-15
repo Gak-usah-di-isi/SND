@@ -15,7 +15,7 @@
     @php
         $activeYear = \App\Models\Year::where('is_active', true)->value('year');
         $confSetting = \App\Models\ConferenceSetting::first();
-        $confAbbr = $confSetting->conference_abbreviation ?? 'SND';
+        $confAbbr = $confSetting->conference_abbreviation ?? 'Seminar DAMPAK';
         $faviconUpload = \App\Models\Upload::currentForType('logo');
         $faviconPath = $faviconUpload ? asset('storage/' . $faviconUpload->file_path) : asset('favicon.ico');
     @endphp

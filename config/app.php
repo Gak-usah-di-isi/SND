@@ -68,6 +68,12 @@ return [
     'timezone' => env('APP_TIMEZONE', 'UTC'),
 
     /*
+    | Jalankan Database\Seeders\DeploySeeder otomatis setelah `php artisan migrate`.
+    | DeploySeeder hanya menambah data acuan yang belum ada (aman tiap deploy).
+    */
+    'seed_after_migrate' => (bool) env('SEED_AFTER_MIGRATE', true),
+
+    /*
     |--------------------------------------------------------------------------
     | Application Locale Configuration
     |--------------------------------------------------------------------------

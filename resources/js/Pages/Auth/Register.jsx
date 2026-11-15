@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState } from 'react';
 import { Link, router, usePage } from '@inertiajs/react';
 import { Eye, EyeOff } from 'lucide-react';
 import AuthLayout from './AuthLayout';
@@ -8,11 +8,6 @@ import { FloatSelect } from '../../Components/ui/FloatSelect';
 const ATTENDANCE_OPTIONS = [
   { value: 'onsite', label: 'Onsite' },
   { value: 'online', label: 'Online' },
-];
-
-const ROLE_ORDER = [
-  'presenter',
-  'reviewer',
 ];
 
 const STEP1_FIELDS = ['name', 'institution', 'job_title', 'phone_number', 'country', 'attendance', 'role_id'];
@@ -49,15 +44,7 @@ export default function Register({
   const setInput = (key) => (e) => setForm((f) => ({ ...f, [key]: e.target.value }));
   const setVal = (key) => (val) => setForm((f) => ({ ...f, [key]: val }));
 
-  const roleOptions = useMemo(() => {
-    return [...roles]
-      .sort((a, b) => {
-        const idxA = ROLE_ORDER.indexOf(a.name);
-        const idxB = ROLE_ORDER.indexOf(b.name);
-        return (idxA === -1 ? 999 : idxA) - (idxB === -1 ? 999 : idxB);
-      })
-      .map((r) => ({ value: String(r.id), label: r.display_name }));
-  }, [roles]);
+  const roleOptions = roles.map((r) => ({ value: String(r.id), label: r.display_name }));
   const countryOptions = countries.map((c) => ({ value: c.name, label: c.name }));
 
   const goToStep2 = () => {
@@ -84,11 +71,9 @@ export default function Register({
     });
   };
 
-  const tagline = `${conferenceTitle} — ${conferenceAbbreviation}`;
-
   if (!openRegistration) {
     return (
-      <AuthLayout tagline={tagline}>
+      <AuthLayout abbreviation={conferenceAbbreviation} title={conferenceTitle}>
         <div className="text-center rounded-lg border border-red-200 bg-red-50 p-6">
           <h4 className="mb-1 text-lg font-bold text-red-700">⚠ Registration Closed</h4>
           <p className="text-sm text-red-600">We're sorry, but registration is currently closed.</p>
@@ -109,10 +94,10 @@ export default function Register({
   }
 
   return (
-    <AuthLayout tagline={tagline}>
+    <AuthLayout abbreviation={conferenceAbbreviation} title={conferenceTitle}>
       {step === 2 && (
         <div className="text-center">
-          <img src={logoPath} alt={`Logo ${conferenceAbbreviation || 'SND'}`} className="inline-block mb-2 h-14 w-auto object-contain" />
+          <img src={logoPath} alt={`Logo ${conferenceAbbreviation || 'Seminar DAMPAK'}`} className="inline-block mb-2 h-14 w-auto object-contain" />
         </div>
       )}
       <h3 className="flex justify-center items-center text-2xl font-bold my-3 mt-5">
@@ -146,6 +131,7 @@ export default function Register({
               <FloatSelect id="attendance" label="Attendance Type" options={ATTENDANCE_OPTIONS} placeholder="Select attendance type"
                 value={form.attendance} onChange={setVal('attendance')} error={!!errors.attendance} helperText={errors.attendance} />
             </div>
+
             <div className="mb-4">
               <FloatSelect id="role_id" label="Registration Type" options={roleOptions} placeholder="Select registration type"
                 value={form.role_id} onChange={setVal('role_id')} error={!!errors.role_id} helperText={errors.role_id} />

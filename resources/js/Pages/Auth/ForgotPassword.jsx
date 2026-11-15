@@ -19,9 +19,9 @@ export default function ForgotPassword({ conferenceTitle, conferenceAbbreviation
   };
 
   return (
-    <AuthLayout tagline={`${conferenceTitle || 'Seminar Nasional Berdampak'} — ${conferenceAbbreviation || 'SND'}`}>
+    <AuthLayout abbreviation={conferenceAbbreviation} title={conferenceTitle}>
       <div className="text-center">
-        <img src={logoPath} alt={`Logo ${conferenceAbbreviation || 'SND'}`} className="inline-block mb-2 h-14 w-auto object-contain" />
+        <img src={logoPath} alt={`Logo ${conferenceAbbreviation || 'Seminar DAMPAK'}`} className="inline-block mb-2 h-14 w-auto object-contain" />
       </div>
       <h3 className="flex justify-center items-center text-2xl font-bold my-3 mt-5 text-center">
         Forgot Password

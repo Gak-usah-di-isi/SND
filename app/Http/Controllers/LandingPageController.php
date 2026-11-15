@@ -8,11 +8,16 @@ use App\Models\About;
 use App\Models\ConferenceSetting;
 use App\Models\ConferenceTitle;
 use App\Models\LandingSetting;
+use App\Models\PublicationsJournal;
 use App\Models\Sdg;
 use App\Models\Speaker;
 use App\Models\Theme;
 use App\Models\Hotel;
 use App\Models\Contact;
+use App\Models\DeadlineDate;
+use App\Models\Faq;
+use App\Models\Poster;
+use App\Models\Venue;
 use App\Support\LandingLayoutData;
 
 class LandingPageController extends Controller
@@ -112,58 +117,105 @@ class LandingPageController extends Controller
         return ['sdgs' => Sdg::orderBy('order')->get(['id', 'order', 'code', 'name_id', 'color'])];
     }
 
-    // TODO(sasa, task 04): keynoteSpeakers, invitedSpeakers.
-    private function speakerProps(int $year): array
-    {
-        $fields = [
-            'id',
-            'name',
-            'institution',
-            'image',
-            'country',
-            'session_topic',
-            'await_confirmation',
-        ];
+    // Nilai role di database tidak seragam ("keynote_speaker" dan "Keynote Speaker"),
+    // jadi kedua bentuk diterima, sama seperti beranda ICASVE.
+   private function speakerProps(int $year): array
+{
+    $fields = [
+        'id',
+        'name',
+        'institution',
+        'image',
+        'country',
+        'session_topic',
+        'await_confirmation',
+    ];
 
-        return [
-            'keynoteSpeakers' => Speaker::whereIn('role', ['keynote_speaker', 'Keynote Speaker'])
-                ->where('year', $year)
-                ->get($fields),
+    return [
+        'keynoteSpeakers' => Speaker::whereIn('role', ['keynote_speaker', 'Keynote Speaker'])
+            ->where('year', $year)
+            ->orderBy('id')
+            ->get($fields),
 
-            'invitedSpeakers' => Speaker::whereIn('role', ['invited_speaker', 'Invited Speaker'])
-                ->where('year', $year)
-                ->get($fields),
-        ];
-    }
+        'invitedSpeakers' => Speaker::whereIn('role', ['invited_speaker', 'Invited Speaker'])
+            ->where('year', $year)
+            ->orderBy('id')
+            ->get($fields),
+    ];
+}
 
-    // TODO(sasa, task 03): themes.
+   // TODO(sasa, task 03): themes.
     private function themeProps(int $year): array
     {
-        return [];
+        return [
+            'themes' => Theme::where('year', $year)
+                ->orderBy('id')
+                ->get(['id', 'title', 'year']),
+        ];
     }
 
     // TODO(tita, task 03): deadline_date, posters.
     private function timelineProps(int $year): array
     {
-        return [];
+        return [
+            'deadline_date' => DeadlineDate::where('year', $year)
+                ->orderBy('date')
+                ->get(['id', 'name', 'date']),
+            'posters' => Poster::where('year', $year)
+                ->get(['id', 'image', 'link']),
+        ];
     }
 
     // TODO(tita, task 02): venues.
     private function venueProps(int $year): array
     {
-        return [];
+        return [
+            'venues' => Venue::where('year', $year)->get([
+                'id',
+                'image_path',
+                'venue_name',
+                'address',
+                'date',
+                'link_map',
+                'map',
+                'conference_mode',
+                'onsite_programme',
+                'online_programme',
+            ]),
+        ];
     }
 
     // TODO(sasa, task 01): hosted_by, co_hosted_by, supported_by.
+   // Logo penyelenggara diambil dari Publications Journal berdasarkan tahun aktif.
     private function hostProps(int $year): array
     {
-        return [];
+        $logos = PublicationsJournal::where('year', $year)
+            ->whereIn('image_type', [
+                'hosted_by',
+                'co_hosted_by',
+                'supported_by',
+            ])
+            ->get(['id', 'image_type', 'image_path']);
+
+        return [
+            'hosted_by' => $logos->where('image_type', 'hosted_by')->values(),
+            'co_hosted_by' => $logos->where('image_type', 'co_hosted_by')->values(),
+            'supported_by' => $logos->where('image_type', 'supported_by')->values(),
+        ];
     }
 
     // TODO(sasa, task 02): faqs.
+    // FAQ diambil berdasarkan tahun dibuat, maksimal 3 pertanyaan terbaru.
     private function faqProps(int $year): array
     {
-        return [];
+        $faqs = Faq::whereYear('created_at', $year)
+            ->latest('id')
+            ->limit(3)
+            ->get(['id', 'title', 'description']);
+
+        return [
+            'faqs' => $faqs,
+        ];
     }
 
     // TODO(tita, task 01): contacts.

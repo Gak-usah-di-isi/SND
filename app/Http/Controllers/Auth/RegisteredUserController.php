@@ -10,6 +10,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -31,23 +32,13 @@ class RegisteredUserController extends Controller
      */
     public function create(): Response
     {
-        $roleOrder = [
-            'presenter',
-            'reviewer',
-        ];
-
-        $roles = Role::whereIn('name', $roleOrder)
-            ->get(['id', 'name', 'display_name'])
-            ->sortBy(function ($role) use ($roleOrder) {
-                $idx = array_search($role->name, $roleOrder);
-                return $idx === false ? 999 : $idx;
-            })
-            ->values();
+        // Registration Type hanya berisi Presenter. Reviewer dan role lain diberikan admin dari dasbor.
+        $roles = Role::where('name', 'presenter')->get(['id', 'name', 'display_name']);
         $conferenceSetting = ConferenceSetting::first();
         $openRegistration = $conferenceSetting->open_registration ?? true;
         $enableStudentRegistration = (bool) ($conferenceSetting->enable_student_registration ?? true);
-        $conferenceTitle = optional($conferenceSetting)->conference_title ?? 'Seminar Nasional Berdampak';
-        $conferenceAbbreviation = optional($conferenceSetting)->conference_abbreviation ?? 'SND';
+        $conferenceTitle = optional($conferenceSetting)->conference_title ?? 'Seminar Nasional Pengabdian kepada Masyarakat dan Inovasi Terapan Fakultas Vokasi Universitas Brawijaya';
+        $conferenceAbbreviation = optional($conferenceSetting)->conference_abbreviation ?? 'Seminar DAMPAK';
         $logo = Upload::currentForType('logo');
         $logoPath = $logo ? asset('storage/' . $logo->file_path) : asset('img/Logo_ICASVE_rmbg.png');
         $countries = Country::orderBy('name', 'asc')->get(['id', 'name']);
@@ -76,7 +67,9 @@ class RegisteredUserController extends Controller
             'attendance' => ['required', 'string', 'max:255'],
             'country' => ['required', 'string', 'max:255'],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
-            'role_id' => ['required', 'exists:roles,id'],
+            // Hanya role presenter yang boleh dipilih saat mendaftar, supaya pengunjung
+            // tidak bisa mengirim role_id lain (admin, editor, reviewer) lewat request buatan.
+            'role_id' => ['required', Rule::exists('roles', 'id')->where('name', 'presenter')],
             'is_student' => ['nullable', 'boolean'],
         ]);
 

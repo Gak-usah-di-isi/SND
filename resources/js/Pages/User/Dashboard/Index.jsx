@@ -74,7 +74,7 @@ export default function UserDashboardIndex({
           Selamat Datang, {authUser?.name}
         </h1>
         <p style={{ fontSize: 14, color: '#6B7280', fontFamily: 'Manrope, sans-serif', margin: '4px 0 0' }}>
-          Seminar Nasional Berdampak (BPPM Vokasi UB) &bull; Masuk sebagai <span style={{ color: '#0152EA', fontWeight: 600 }}>{roleLabel}</span>
+          Seminar DAMPAK (BPPM Fakultas Vokasi UB) &bull; Masuk sebagai <span style={{ color: '#0152EA', fontWeight: 600 }}>{roleLabel}</span>
         </p>
       </div>
 
