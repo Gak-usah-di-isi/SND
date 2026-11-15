@@ -8,6 +8,7 @@ use App\Models\About;
 use App\Models\ConferenceSetting;
 use App\Models\ConferenceTitle;
 use App\Models\LandingSetting;
+use App\Models\PublicationsJournal;
 use App\Models\Sdg;
 use App\Models\Theme;
 use App\Models\Hotel;
@@ -140,9 +141,22 @@ class LandingPageController extends Controller
     }
 
     // TODO(sasa, task 01): hosted_by, co_hosted_by, supported_by.
+   // Logo penyelenggara diambil dari Publications Journal berdasarkan tahun aktif.
     private function hostProps(int $year): array
     {
-        return [];
+        $logos = PublicationsJournal::where('year', $year)
+            ->whereIn('image_type', [
+                'hosted_by',
+                'co_hosted_by',
+                'supported_by',
+            ])
+            ->get(['id', 'image_type', 'image_path']);
+
+        return [
+            'hosted_by' => $logos->where('image_type', 'hosted_by')->values(),
+            'co_hosted_by' => $logos->where('image_type', 'co_hosted_by')->values(),
+            'supported_by' => $logos->where('image_type', 'supported_by')->values(),
+        ];
     }
 
     // TODO(sasa, task 02): faqs.
