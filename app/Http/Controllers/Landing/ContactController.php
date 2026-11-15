@@ -4,27 +4,54 @@ namespace App\Http\Controllers\Landing;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Http\Request;
 use App\Models\Contact;
-use App\Models\Year;
+use App\Models\LandingSetting;
+use App\Models\Venue;
+use App\Support\LandingLayoutData;
+use Symfony\Component\Mailer\Exception\TransportExceptionInterface;
 use Inertia\Inertia;
 
 class ContactController extends Controller
 {
     public function showLandingpage()
-{
-    $activeYear = Year::where('is_active', true)->first();
+    {
+        $activeYear = LandingSetting::where('is_active', true)->value('year');
+        $contact = $activeYear
+            ? Contact::where('year', $activeYear)->first([
+                'id',
+                'phone1',
+                'phone1_name',
+                'phone2',
+                'phone2_name',
+                'email',
+                'address',
+                'year',
+            ])
+            : null;
+        $venues = $activeYear
+            ? Venue::where('year', $activeYear)->get([
+                'id',
+                'image_path',
+                'venue_name',
+                'address',
+                'date',
+                'link_map',
+                'map',
+                'year',
+                'conference_mode',
+                'onsite_programme',
+                'online_programme',
+            ])
+            : collect();
 
-    if (!$activeYear) {
-        return back()->with('error', 'Tidak ada tahun aktif yang ditemukan.');
+        return Inertia::render('Landing/Contact', array_merge(LandingLayoutData::props(), [
+            'activeYear' => $activeYear,
+            'contact' => $contact,
+            'venues' => $venues,
+        ]));
     }
-
-    $contacts = Contact::where('year', $activeYear->year)->get();
-
-    return view('landingpage.contact.contact', compact('contacts'));
-}
-
-    
 
     public function index()
     {
@@ -81,27 +108,43 @@ class ContactController extends Controller
 
     public function sendEmail(Request $request)
     {
-        $request->validate([
-            'name'    => 'required|string|max:255',
-            'email'   => 'required|email|max:255',
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|max:255',
+            'subject' => ['required', 'string', 'max:255', 'not_regex:/[\r\n]/'],
             'message' => 'required|string',
         ]);
-
         $details = [
-            'name'    => $request->name,
-            'email'   => $request->email,
-            'message' => $request->message,
+            'name' => $validated['name'],
+            'email' => $validated['email'],
+            'subject' => $validated['subject'],
+            'body' => $validated['message'],
         ];
 
+        $activeYear = LandingSetting::where('is_active', true)->value('year');
+        $recipient = $activeYear
+            ? Contact::where('year', $activeYear)->whereNotNull('email')->value('email')
+            : null;
+        $recipient = $recipient ?: config('mail.from.address');
+
         try {
-            Mail::send('emails.contact', $details, function ($message) use ($details) {
-                $message->to('admin@example.com') // Ganti dengan email tujuan
-                    ->subject('New Contact Message from ' . $details['name']);
+            Mail::send('emails.contact', $details, function ($mail) use ($details, $recipient) {
+                $mail->to($recipient)
+                    ->replyTo($details['email'], $details['name'])
+                    ->subject($details['subject']);
             });
-        } catch (\Throwable $e) {
-            \Illuminate\Support\Facades\Log::warning("Gagal mengirim email contact form: " . $e->getMessage());
+        } catch (TransportExceptionInterface $exception) {
+            Log::error('Contact form email delivery failed.', ['exception' => $exception]);
+
+            return back()->with([
+                'type' => 'error',
+                'message' => 'Pesan belum dapat dikirim. Silakan coba lagi nanti.',
+            ]);
         }
 
-        return redirect()->back()->with('success', 'Your message has been sent successfully!');
+        return back()->with([
+            'type' => 'success',
+            'message' => 'Pesan Anda sudah terkirim. Panitia akan membalas lewat email.',
+        ]);
     }
 }
