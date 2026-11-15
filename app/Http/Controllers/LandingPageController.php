@@ -171,7 +171,19 @@ class LandingPageController extends Controller
     public function showTheme($id)
     {
         $theme = Theme::findOrFail($id);
-        return view('landingpage.theme_detail.index', compact('theme'));
+        $yearThemes = Theme::where('year', $theme->year)
+            ->orderBy('id')
+            ->get(['id', 'title']);
+        $themeNumber = $yearThemes->search(fn (Theme $yearTheme) => (int) $yearTheme->id === (int) $theme->id) + 1;
+
+        return Inertia::render('Landing/ThemeDetail', array_merge(LandingLayoutData::props(), [
+            'theme' => $theme->only(['id', 'title', 'description', 'year']),
+            'themeNumber' => $themeNumber,
+            'otherThemes' => $yearThemes
+                ->reject(fn (Theme $yearTheme) => (int) $yearTheme->id === (int) $theme->id)
+                ->map->only(['id', 'title'])
+                ->values(),
+        ]));
     }
 
     public function hotels()
