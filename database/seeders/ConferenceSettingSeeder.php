@@ -15,8 +15,8 @@ class ConferenceSettingSeeder extends Seeder
         ConferenceSetting::updateOrCreate(
             ['id' => 1],
             [
-                'conference_title'              => 'Seminar Nasional Berdampak',
-                'conference_abbreviation'       => 'SND',
+                'conference_title'              => 'Seminar Nasional Pengabdian kepada Masyarakat dan Inovasi Terapan Fakultas Vokasi Universitas Brawijaya',
+                'conference_abbreviation'       => 'Seminar DAMPAK',
                 'conference_chairperson'        => 'Ketua BPPM Vokasi UB',
                 'administrator_email'           => 'admin@ub.ac.id',
                 'treasurer_email'               => 'bendahara@ub.ac.id',

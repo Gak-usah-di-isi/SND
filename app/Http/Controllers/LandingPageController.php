@@ -10,6 +10,7 @@ use App\Models\ConferenceTitle;
 use App\Models\LandingSetting;
 use App\Models\PublicationsJournal;
 use App\Models\Sdg;
+use App\Models\Speaker;
 use App\Models\Theme;
 use App\Models\Hotel;
 use App\Models\Contact;
@@ -116,10 +117,22 @@ class LandingPageController extends Controller
         return ['sdgs' => Sdg::orderBy('order')->get(['id', 'order', 'code', 'name_id', 'color'])];
     }
 
-    // TODO(sasa, task 04): keynoteSpeakers, invitedSpeakers.
+    // Nilai role di database tidak seragam ("keynote_speaker" dan "Keynote Speaker"),
+    // jadi kedua bentuk diterima, sama seperti beranda ICASVE.
     private function speakerProps(int $year): array
     {
-        return [];
+        $fields = ['id', 'name', 'institution', 'image', 'country', 'session_topic', 'await_confirmation'];
+
+        return [
+            'keynoteSpeakers' => Speaker::whereIn('role', ['keynote_speaker', 'Keynote Speaker'])
+                ->where('year', $year)
+                ->orderBy('id')
+                ->get($fields),
+            'invitedSpeakers' => Speaker::whereIn('role', ['invited_speaker', 'Invited Speaker'])
+                ->where('year', $year)
+                ->orderBy('id')
+                ->get($fields),
+        ];
     }
 
    // TODO(sasa, task 03): themes.

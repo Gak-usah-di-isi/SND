@@ -79,7 +79,7 @@ export default function StandbyScreen({ isOpen, onClose }) {
         <div className="flex items-center gap-3">
           <img
             src={logoPath || '/images/logo.png'}
-            alt={conferenceAbbreviation || 'SND'}
+            alt={conferenceAbbreviation || 'Seminar DAMPAK'}
             className="h-10 w-auto object-contain max-w-[200px] drop-shadow-sm"
             onError={(e) => {
               if (!e.currentTarget.src.endsWith('/images/logo.png')) {
@@ -88,7 +88,7 @@ export default function StandbyScreen({ isOpen, onClose }) {
             }}
           />
           <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-white/80 border border-slate-300/80 text-slate-700 shadow-sm backdrop-blur-md">
-            {activeYear ? `${conferenceAbbreviation || 'SND'} ${typeof activeYear === 'object' && activeYear !== null ? activeYear.year : activeYear}` : (conferenceAbbreviation || 'SND')}
+            {activeYear ? `${conferenceAbbreviation || 'Seminar DAMPAK'} ${typeof activeYear === 'object' && activeYear !== null ? activeYear.year : activeYear}` : (conferenceAbbreviation || 'Seminar DAMPAK')}
           </span>
         </div>
 

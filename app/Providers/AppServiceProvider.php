@@ -7,6 +7,11 @@ use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\View;
 use Illuminate\Queue\Events\JobProcessing;
+use Illuminate\Database\Events\MigrationsEnded;
+use Illuminate\Database\Events\NoPendingMigrations;
+use Illuminate\Support\Facades\Artisan;
+use Symfony\Component\Console\Output\ConsoleOutput;
+use Database\Seeders\DeploySeeder;
 use App\Models\Logo;
 use App\Models\Upload;
 use App\Models\Year;
@@ -22,6 +27,34 @@ class AppServiceProvider extends ServiceProvider
     }
 
     /**
+     * Setiap `php artisan migrate` selesai (ada migrasi baru maupun tidak), jalankan
+     * DeploySeeder. Dengan begitu auto-migrate di server ikut mengisi data acuan
+     * (role, permission, SDGs, negara, pengaturan awal) tanpa mengubah script deploy.
+     *
+     * DeploySeeder hanya menambah data yang belum ada, jadi aman jalan tiap deploy.
+     * Matikan dengan SEED_AFTER_MIGRATE=false di .env.
+     */
+    private function seedAfterMigrate(): void
+    {
+        Event::listen([MigrationsEnded::class, NoPendingMigrations::class], function ($event) {
+            $isPretend = $event instanceof MigrationsEnded && ! empty($event->options['pretend']);
+
+            if ($event->method !== 'up'
+                || $isPretend
+                // Default true juga saat config cache lama di server belum punya key ini.
+                || ! config('app.seed_after_migrate', true)
+                || ! $this->app->runningInConsole()
+                || $this->app->environment('testing')) {
+                return;
+            }
+
+            $output = new ConsoleOutput();
+            $output->writeln('<info>Menjalankan DeploySeeder setelah migrate...</info>');
+            Artisan::call('db:seed', ['--class' => DeploySeeder::class, '--force' => true], $output);
+        });
+    }
+
+    /**
      * Bootstrap any application services.
      */
     public function boot(): void
@@ -33,6 +66,8 @@ class AppServiceProvider extends ServiceProvider
         // yang sama antar-job. Tanpa reset ini, worker bisa memakai tahun lama
         // setelah admin mengganti tahun aktif, sampai worker di-restart.
         Event::listen(JobProcessing::class, fn () => Year::forgetActiveYear());
+
+        $this->seedAfterMigrate();
 
         View::composer('*', function ($view) {
             // Cek apakah ada tahun aktif

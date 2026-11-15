@@ -24,8 +24,8 @@ class NewPasswordController extends Controller
     public function create(Request $request): Response
     {
         $conferenceSetting = ConferenceSetting::first();
-        $conferenceTitle = optional($conferenceSetting)->conference_title ?? 'Seminar Nasional Berdampak';
-        $conferenceAbbreviation = optional($conferenceSetting)->conference_abbreviation ?? 'SND';
+        $conferenceTitle = optional($conferenceSetting)->conference_title ?? 'Seminar Nasional Pengabdian kepada Masyarakat dan Inovasi Terapan Fakultas Vokasi Universitas Brawijaya';
+        $conferenceAbbreviation = optional($conferenceSetting)->conference_abbreviation ?? 'Seminar DAMPAK';
 
         $logo = Upload::currentForType('logo');
         $logoPath = $logo ? asset('storage/' . $logo->file_path) : asset('img/Logo_ICASVE_rmbg.png');

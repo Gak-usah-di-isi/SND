@@ -49,7 +49,7 @@ function Layout({ currentPath, children }) {
                 <div className="flex items-center gap-2.5">
                   <Icon icon="solar:archive-outline" width={20} style={{ color: '#D97706' }} />
                   <span style={{ fontSize: 13.5, color: '#92400E' }}>
-                    You are viewing the <strong>{conferenceAbbreviation || 'SND'} {viewingYear}</strong> archive. Data is read-only —
+                    You are viewing the <strong>{conferenceAbbreviation || 'Seminar DAMPAK'} {viewingYear}</strong> archive. Data is read-only —
                     to submit an abstract or upload files, please return to the active year.
                   </span>
                 </div>

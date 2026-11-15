@@ -218,40 +218,44 @@ function AbstractFormView({
               Pilihlah satu atau lebih dari 17 Tujuan Pembangunan Berkelanjutan (SDGs) yang relevan dengan topik makalah Anda:
             </p>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5 max-h-[360px] overflow-y-auto p-1">
+            {/* Kotak ringkas: ikon resmi SDG (public/images/sdgs/{code}.svg) + nama. Checkbox asli
+                disembunyikan secara visual agar tetap bisa dipakai dengan keyboard dan pembaca layar. */}
+            <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
               {sdgs.map(sdg => {
                 const isChecked = form.sdg_ids.includes(sdg.id);
+                const name = sdg.name_id || sdg.name_en;
                 return (
-                  <div
+                  <label
                     key={sdg.id}
-                    onClick={() => toggleSdg(sdg.id)}
-                    className={`flex items-start gap-2.5 p-2.5 rounded-xl border transition-all cursor-pointer ${
-                      isChecked
-                        ? 'border-blue-500 bg-blue-50/70 shadow-sm ring-1 ring-blue-500'
-                        : 'border-gray-200 bg-white hover:bg-gray-50'
+                    className={`flex cursor-pointer items-center gap-2.5 rounded-xl border p-2 transition focus-within:ring-2 focus-within:ring-blue-600 focus-within:ring-offset-1 ${
+                      isChecked ? 'border-blue-500 bg-blue-50/70 ring-1 ring-blue-500' : 'border-gray-200 bg-white hover:bg-gray-50'
                     }`}
                   >
                     <input
                       type="checkbox"
+                      className="sr-only"
                       checked={isChecked}
-                      onChange={() => {}}
-                      className="mt-1 h-4 w-4 rounded text-blue-600 focus:ring-blue-500 cursor-pointer"
+                      onChange={() => toggleSdg(sdg.id)}
                     />
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-1.5 mb-0.5">
-                        <span
-                          className="text-[11px] px-1.5 py-0.5 rounded font-bold text-white shrink-0"
-                          style={{ background: sdg.color || '#0152EA' }}
-                        >
-                          {sdg.code}
+                    <span className="relative shrink-0">
+                      <img src={`/images/sdgs/${sdg.code}.svg`} alt="" width="40" height="40" className="size-10 rounded-md" loading="lazy" />
+                      {isChecked && (
+                        <span className="absolute -right-1.5 -top-1.5 flex size-4 items-center justify-center rounded-full bg-blue-600 text-white" aria-hidden="true">
+                          <svg width="10" height="10" viewBox="0 0 12 12">
+                            <path d="M2.5 6.2 5 8.5l4.5-5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                          </svg>
                         </span>
-                        <span className="text-xs font-semibold text-gray-800 truncate" title={sdg.name_id || sdg.name_en}>
-                          {sdg.name_id || sdg.name_en}
-                        </span>
-                      </div>
-                      <p className="text-[11px] text-gray-400 truncate m-0">{sdg.name_en}</p>
-                    </div>
-                  </div>
+                      )}
+                    </span>
+                    <span className="min-w-0">
+                      <span className="block truncate text-xs font-semibold text-gray-800" title={name}>
+                        {sdg.order ? `${sdg.order}. ` : ''}{name}
+                      </span>
+                      <span className="block truncate text-[11px] text-gray-500" title={sdg.name_en}>
+                        {sdg.name_en}
+                      </span>
+                    </span>
+                  </label>
                 );
               })}
             </div>

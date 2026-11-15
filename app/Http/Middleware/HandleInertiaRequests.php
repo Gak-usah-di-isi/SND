@@ -53,11 +53,11 @@ class HandleInertiaRequests extends Middleware
             },
             'conferenceTitle' => function () {
                 $setting = ConferenceSetting::first();
-                return $setting->conference_title ?? 'Seminar Nasional Berdampak';
+                return $setting->conference_title ?? 'Seminar Nasional Pengabdian kepada Masyarakat dan Inovasi Terapan Fakultas Vokasi Universitas Brawijaya';
             },
             'conferenceAbbreviation' => function () {
                 $setting = ConferenceSetting::first();
-                return $setting->conference_abbreviation ?? 'SND';
+                return $setting->conference_abbreviation ?? 'Seminar DAMPAK';
             },
             'authUser'   => fn () => $request->user()?->only('name', 'email'),
             'authRoles'  => fn () => $request->user()?->roles->pluck('name') ?? [],
