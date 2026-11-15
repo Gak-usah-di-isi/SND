@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use App\Models\Gallery;
 use App\Models\GalleryImage;
+use App\Support\LandingLayoutData;
 use Inertia\Inertia;
 
 class GalleryController extends Controller
@@ -97,24 +98,20 @@ class GalleryController extends Controller
     }
 
     public function showLandingPage($year = null)
-{
-    // Ambil tahun-tahun unik dari tabel galleries
-    $years = Gallery::select('year')->distinct()->orderBy('year', 'desc')->get();
+    {
+        // Hanya tahun yang punya galeri yang bisa dipilih.
+        $years = Gallery::orderByDesc('year')->distinct()->pluck('year');
+        $selectedYear = $year ?? $years->first();
 
-    // Ambil semua gallery images beserta relasi gallery-nya
-    $galleryImages = GalleryImage::with('gallery')->get()->map(function($img) {
-        // Tambahkan properti 'year' dari gallery parent
-        $img->year = $img->gallery->year;
-        return $img;
-    });
+        $images = GalleryImage::whereHas('gallery', fn ($query) => $query->where('year', $selectedYear))
+            ->get(['id', 'image_path']);
 
-    // Kirim data ke view landing page
-    return view('landingpage.gallery.gallery', [
-        'years' => $years,
-        'gallery' => $galleryImages,
-        'selectedYear' => $year,
-    ]);
-}
+        return Inertia::render('Landing/Gallery', array_merge(LandingLayoutData::props(), [
+            'years' => $years,
+            'selectedYear' => $selectedYear !== null ? (int) $selectedYear : null,
+            'images' => $images,
+        ]));
+    }
 
     public function destroyImage(GalleryImage $galleryImage)
     {

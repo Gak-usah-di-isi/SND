@@ -8,6 +8,10 @@ import { Button } from '../ui/button';
 const HERO_IMAGE = '/images/Lab.jpeg';
 
 export default function Hero({ title, abbreviation, year, routes, sdgs }) {
+    // Judul konferensi tahun aktif boleh belum diisi di editor landing;
+    // pakai nama seminar dari singkatan agar hero tidak error/ kosong.
+    const heading = title?.title || abbreviation;
+
     return (
         <section className="pt-4 md:pt-6" aria-labelledby="hero-title">
             <div className={container}>
@@ -31,15 +35,15 @@ export default function Hero({ title, abbreviation, year, routes, sdgs }) {
                     />
                     <div className="px-6 pb-14 pt-14 sm:px-10 lg:px-16 lg:pb-20 lg:pt-20">
                         <p className="text-sm font-semibold text-white/70">
-                            {abbreviation} {title.year ?? year}
+                            {abbreviation} {title?.year ?? year}
                         </p>
                         <h1
                             id="hero-title"
                             className="mt-5 max-w-[20ch] text-balance text-[clamp(2.25rem,1.2rem+4.4vw,4.5rem)] font-extrabold leading-[1.03] tracking-[-0.035em]"
                         >
-                            {title.title}
+                            {heading}
                         </h1>
-                        {title.description && (
+                        {title?.description && (
                             <p className="mt-6 max-w-[44ch] text-[clamp(1.05rem,0.95rem+0.5vw,1.3rem)] font-medium leading-snug text-sd-gold">
                                 {title.description}
                             </p>

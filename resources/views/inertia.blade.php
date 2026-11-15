@@ -19,8 +19,8 @@
         $faviconUpload = \App\Models\Upload::currentForType('logo');
         $faviconPath = $faviconUpload ? asset('storage/' . $faviconUpload->file_path) : asset('favicon.ico');
     @endphp
-    {{-- Landing mengatur judul tab sendiri lewat <Head> di Pages/Landing/Home.jsx. --}}
-    @unless (($page['component'] ?? null) === 'Landing/Home')
+    {{-- Halaman landing mengatur judul tab sendiri lewat <Head> di LandingLayout. --}}
+    @unless (str_starts_with($page['component'] ?? '', 'Landing/'))
         <title>{{ $activeYear ? $confAbbr . ' ' . $activeYear : $confAbbr }}</title>
     @endunless
     <link rel="icon" href="{{ $faviconPath }}">

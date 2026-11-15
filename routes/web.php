@@ -40,7 +40,6 @@ use App\Http\Controllers\Landing\ContactController;
 use App\Http\Controllers\Landing\ReviewerCommitteeController;
 use App\Http\Controllers\Landing\SteeringCommitteeController;
 use App\Http\Controllers\ConferenceProgramController as ConferenceProgram;
-use App\Http\Controllers\GalleryLandingPageController;
 use App\Http\Controllers\LandingPageController as LandingPage;
 use App\Http\Controllers\Landing\LandingPageController as LandingPageEditorController;
 use App\Http\Controllers\Landing\VenueController;

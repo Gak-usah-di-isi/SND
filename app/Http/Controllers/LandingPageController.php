@@ -4,13 +4,44 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Inertia\Inertia;
+use App\Models\About;
+use App\Models\ConferenceSetting;
+use App\Models\ConferenceTitle;
 use App\Models\LandingSetting;
+use App\Models\Sdg;
 use App\Models\Theme;
 use App\Models\Hotel;
 use App\Models\Contact;
+use App\Support\LandingLayoutData;
 
 class LandingPageController extends Controller
 {
+    /*
+     * Key props beranda -> model (field yang dipakai halaman):
+     *   layout                  LandingLayoutData (abbreviation, year, logo, sdgs)
+     *   activeYear              LandingSetting (year)
+     *   conference_abbreviation ConferenceSetting::conference_abbreviation (string)
+     *   conference_title        ConferenceTitle (title, description, year)
+     *   about                   About (title, content, image)
+     *   sdgs                    Sdg (order, code, name_id, color), pengganti conference_objectives
+     *   keynoteSpeakers         Speaker role keynote_speaker
+     *   invitedSpeakers         Speaker role invited_speaker
+     *                           (name, institution, image, country, session_topic, await_confirmation)
+     *   themes                  Theme (id, title, year), tautan ke /themes/{id}
+     *   posters                 Poster (image, link)
+     *   deadline_date           DeadlineDate (name, date). Nama yang sama dengan beberapa
+     *                           tanggal = tenggat diperpanjang, tanggal lama dicoret.
+     *   venues                  Venue (image_path, venue_name, address, date, link_map, map,
+     *                           conference_mode, onsite_programme, online_programme)
+     *   hosted_by               PublicationsJournal image_type hosted_by (image_path)
+     *   co_hosted_by            PublicationsJournal image_type co_hosted_by (image_path)
+     *   supported_by            PublicationsJournal image_type supported_by (image_path)
+     *   faqs                    Faq (title, description), maksimal 3 seperti ICASVE
+     *   contacts                Contact (phone1, phone1_name, phone2, phone2_name, email, address)
+     *
+     * Path gambar dari database (mis. "speakers/a.jpg") otomatis diawali /storage/
+     * oleh helper assetUrl(). Path yang diawali "/" atau "http" dipakai apa adanya.
+     */
     public function index($year = null)
     {
         $activeYear = $year ? LandingSetting::where('year', $year)->first() : LandingSetting::where('is_active', true)->first();
@@ -31,13 +62,14 @@ class LandingPageController extends Controller
         $selectedYear = (int) $activeYear->year;
 
         // Setiap section beranda punya method sendiri di bawah (lihat docs/taks-new).
-        // Key yang dikirim menimpa data contoh di resources/js/data/landingDummy.js;
-        // key yang belum dikirim tetap memakai data contoh.
+        // Key yang dikirim dipakai langsung oleh halaman; method yang masih kosong
+        // membuat section terkait menyembunyikan diri.
         return Inertia::render('Landing/Home', array_merge(
             [
                 'activeYear' => ['year' => $selectedYear, 'is_active' => (bool) $activeYear->is_active],
                 'routeYear' => $year ? (int) $year : null,
             ],
+            LandingLayoutData::props(),
             $this->heroProps($selectedYear),
             $this->aboutProps($selectedYear),
             $this->sdgProps(),
@@ -51,22 +83,32 @@ class LandingPageController extends Controller
         ));
     }
 
-    // TODO(rafif, task 04): conference_title, conference_abbreviation, logo.
+    // Judul dan singkatan dari editor landing / pengaturan konferensi.
+    // Logo sudah dikirim LandingLayoutData::props(), jadi tidak diambil dua kali.
     private function heroProps(int $year): array
     {
-        return [];
+        $title = ConferenceTitle::where('year', $year)->first(['id', 'title', 'description', 'year']);
+
+        return [
+            'conference_title' => $title,
+            'conference_abbreviation' => ConferenceSetting::first()?->conference_abbreviation ?: 'Seminar DAMPAK',
+        ];
     }
 
-    // TODO(rafif, task 02): about.
+    // About diambil dari editor landing; bila tahun aktif belum diisi,
+    // section Tentang menyembunyikan diri (null).
     private function aboutProps(int $year): array
     {
-        return [];
+        $about = About::where('year', $year)->latest('id')->first();
+
+        return ['about' => $about?->only(['id', 'title', 'content', 'image'])];
     }
 
-    // TODO(rafif, task 03): sdgs.
+    // SDGs berlaku lintas tahun; urutan mengikuti kolom `order` agar ikon
+    // dan pita warna sama dengan urutan resmi.
     private function sdgProps(): array
     {
-        return [];
+        return ['sdgs' => Sdg::orderBy('order')->get(['id', 'order', 'code', 'name_id', 'color'])];
     }
 
     // TODO(sasa, task 04): keynoteSpeakers, invitedSpeakers.
