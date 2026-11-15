@@ -13,6 +13,7 @@ use App\Models\Sdg;
 use App\Models\Theme;
 use App\Models\Hotel;
 use App\Models\Contact;
+use App\Models\Faq;
 use App\Support\LandingLayoutData;
 
 class LandingPageController extends Controller
@@ -160,9 +161,17 @@ class LandingPageController extends Controller
     }
 
     // TODO(sasa, task 02): faqs.
+    // FAQ diambil berdasarkan tahun dibuat, maksimal 3 pertanyaan terbaru.
     private function faqProps(int $year): array
     {
-        return [];
+        $faqs = Faq::whereYear('created_at', $year)
+            ->latest('id')
+            ->limit(3)
+            ->get(['id', 'title', 'description']);
+
+        return [
+            'faqs' => $faqs,
+        ];
     }
 
     // TODO(tita, task 01): contacts.
