@@ -13,7 +13,9 @@ use App\Models\Sdg;
 use App\Models\Theme;
 use App\Models\Hotel;
 use App\Models\Contact;
+use App\Models\DeadlineDate;
 use App\Models\Faq;
+use App\Models\Poster;
 use App\Models\Venue;
 use App\Support\LandingLayoutData;
 
@@ -133,7 +135,13 @@ class LandingPageController extends Controller
     // TODO(tita, task 03): deadline_date, posters.
     private function timelineProps(int $year): array
     {
-        return [];
+        return [
+            'deadline_date' => DeadlineDate::where('year', $year)
+                ->orderBy('date')
+                ->get(['id', 'name', 'date']),
+            'posters' => Poster::where('year', $year)
+                ->get(['id', 'image', 'link']),
+        ];
     }
 
     // TODO(tita, task 02): venues.
