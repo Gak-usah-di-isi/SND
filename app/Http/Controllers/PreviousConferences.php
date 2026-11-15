@@ -3,30 +3,29 @@
 namespace App\Http\Controllers;
 
 use App\Models\AbstractModel;
-use App\Models\Poster;
-use App\Models\ConferenceTitle;
-use App\Models\Speaker;
-use App\Models\ConferenceDetail;
+use App\Models\Prevconference;
+use App\Support\LandingLayoutData;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
-use App\Models\Venue;
-use App\Models\Prevconference;
+use Inertia\Inertia;
 
 class PreviousConferences extends Controller
 {
     public function index()
     {
-        $venues = Venue::all();
-        $speakers = Speaker::all();
-        $conferenceDetails  = ConferenceDetail::all();
-        $posters = Poster::all();
-        $conferenceTitle = ConferenceTitle::orderBy('year', 'desc')->get();
-        $theme = ConferenceTitle::query()->where('year', now()->year)->first();
-        $selectedYear = request()->get('year', now()->year);
-        $abstracts = AbstractModel::whereYear('created_at', $selectedYear)->get();
-        $prevconferences = Prevconference::orderBy('year', 'desc')->get();
+        $years = Prevconference::query()
+            ->select('year')
+            ->distinct()
+            ->orderByDesc('year')
+            ->pluck('year');
+        $prevconferences = Prevconference::query()
+            ->orderByDesc('year')
+            ->get(['id', 'image', 'title', 'description', 'keynote', 'date', 'location', 'pdf', 'year']);
 
-        return view('landingpage.prevconference.previous_conference', compact('posters', 'conferenceTitle', 'abstracts', 'selectedYear', 'theme', 'speakers', 'conferenceDetails', 'venues', 'prevconferences'));
+        return Inertia::render('Landing/PreviousConference', array_merge(LandingLayoutData::props(), [
+            'prevconferences' => $prevconferences,
+            'years' => $years,
+        ]));
     }
 
     public function downloadAllPdf(Request $request)
