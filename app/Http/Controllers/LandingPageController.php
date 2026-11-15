@@ -117,10 +117,14 @@ class LandingPageController extends Controller
         return [];
     }
 
-    // TODO(sasa, task 03): themes.
+   // TODO(sasa, task 03): themes.
     private function themeProps(int $year): array
     {
-        return [];
+        return [
+            'themes' => Theme::where('year', $year)
+                ->orderBy('id')
+                ->get(['id', 'title', 'year']),
+        ];
     }
 
     // TODO(tita, task 03): deadline_date, posters.
