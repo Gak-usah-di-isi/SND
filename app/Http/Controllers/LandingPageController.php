@@ -12,6 +12,7 @@ use App\Models\PublicationsJournal;
 use App\Models\Sdg;
 use App\Models\Theme;
 use App\Models\Hotel;
+use App\Models\Contact;
 use App\Support\LandingLayoutData;
 
 class LandingPageController extends Controller
@@ -163,7 +164,17 @@ class LandingPageController extends Controller
     // TODO(tita, task 01): contacts.
     private function contactProps(int $year): array
     {
-        return [];
+        return [
+            'contacts' => Contact::where('year', $year)->get([
+                'id',
+                'phone1',
+                'phone1_name',
+                'phone2',
+                'phone2_name',
+                'email',
+                'address',
+            ]),
+        ];
     }
 
 
