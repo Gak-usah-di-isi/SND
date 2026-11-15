@@ -14,6 +14,7 @@ use App\Models\Theme;
 use App\Models\Hotel;
 use App\Models\Contact;
 use App\Models\Faq;
+use App\Models\Venue;
 use App\Support\LandingLayoutData;
 
 class LandingPageController extends Controller
@@ -138,7 +139,20 @@ class LandingPageController extends Controller
     // TODO(tita, task 02): venues.
     private function venueProps(int $year): array
     {
-        return [];
+        return [
+            'venues' => Venue::where('year', $year)->get([
+                'id',
+                'image_path',
+                'venue_name',
+                'address',
+                'date',
+                'link_map',
+                'map',
+                'conference_mode',
+                'onsite_programme',
+                'online_programme',
+            ]),
+        ];
     }
 
     // TODO(sasa, task 01): hosted_by, co_hosted_by, supported_by.
