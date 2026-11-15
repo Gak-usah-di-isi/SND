@@ -3,13 +3,19 @@
 return [
     /**
      * Control if the seeder should create a user per role while seeding the data.
+     *
+     * false: akun bawaan (admin@app.test, dst.) memakai password "password". Jangan
+     * dinyalakan di server; akun dibuat manual dengan password yang kuat.
      */
-    'create_users' => true,
+    'create_users' => false,
 
     /**
      * Control if all the laratrust tables should be truncated before running the seeder.
+     *
+     * false: truncate menghapus semua relasi user-role dan role tambahan (landing-editor,
+     * sekretaris, humas, bendahara) yang dibuat migrasi, sehingga user kehilangan aksesnya.
      */
-    'truncate_tables' => true,
+    'truncate_tables' => false,
 
     'roles_structure' => [
         'admin' => [

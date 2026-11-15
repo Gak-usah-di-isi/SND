@@ -29,6 +29,7 @@ class DeploySeeder extends Seeder
     public function run(): void
     {
         $this->rolesAndPermissions();
+        $this->extraRoles();
         $this->callWhenEmpty('countries', CountriesSeeder::class);
         $this->callWhenEmpty((new Sdg)->getTable(), SdgSeeder::class);
         $this->callWhenEmpty((new ConferenceSetting)->getTable(), ConferenceSettingSeeder::class);
@@ -69,6 +70,28 @@ class DeploySeeder extends Seeder
         }
 
         $this->command?->line('  ok      role & permission');
+    }
+
+    /**
+     * Role yang dipakai kode tapi tidak ada di config laratrust_seeder. Sekretaris, humas,
+     * dan bendahara aslinya dibuat migrasi 2026_10_17_090000, tapi bisa hilang kalau
+     * LaratrustSeeder lama (truncate_tables) pernah dijalankan. landing-editor dipakai
+     * route Editor Landing (role:landing-editor) dan belum pernah dibuat di mana pun.
+     */
+    private function extraRoles(): void
+    {
+        $roles = [
+            'landing-editor' => ['Landing Editor', 'Editor Landing Page (kelola konten landing page)'],
+            'sekretaris' => ['Sekretaris', 'Sekretaris Panitia (Read & Export Data, Tanpa Settings/Files/Broadcast)'],
+            'humas' => ['Humas', 'Humas Panitia (Read & Export Data, Tanpa Settings/Files/Broadcast)'],
+            'bendahara' => ['Bendahara', 'Bendahara Panitia (Kelola Summary Keuangan & Verifikasi Payment)'],
+        ];
+
+        foreach ($roles as $name => [$display, $description]) {
+            Role::firstOrCreate(['name' => $name], ['display_name' => $display, 'description' => $description]);
+        }
+
+        $this->command?->line('  ok      role tambahan (landing-editor, sekretaris, humas, bendahara)');
     }
 
     /** Jalankan seeder lain hanya bila tabelnya masih kosong (instalasi baru). */
