@@ -11,7 +11,7 @@ export function buildRoutes(year) {
         abstract: '/submission/abstract',
         presentation: '/submission/presentation',
         gallery: '/gallery',
-        program: '/conference-program',
+        program: year ? `/conference-program/${year}` : '/conference-program',
         archives: '/archives',
         previous: '/previous-conference',
         faq: '/faq',
