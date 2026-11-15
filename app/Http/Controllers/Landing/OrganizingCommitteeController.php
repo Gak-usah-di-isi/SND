@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\OrganizingCommittee;
 use App\Models\LandingSetting;
+use App\Support\LandingLayoutData;
 use Inertia\Inertia;
 
 class OrganizingCommitteeController extends Controller
@@ -20,7 +21,10 @@ class OrganizingCommitteeController extends Controller
             ->orderBy('id')
             ->get();
 
-        return view('landingpage.committee.organizing', compact('committees', 'selectedYear'));
+        return Inertia::render('Landing/Committee/Organizing', array_merge(LandingLayoutData::props(), [
+            'members' => $committees->map->only(['id', 'name', 'category']),
+            'selectedYear' => (int) $selectedYear,
+        ]));
     }
 
     public function index(Request $request)
