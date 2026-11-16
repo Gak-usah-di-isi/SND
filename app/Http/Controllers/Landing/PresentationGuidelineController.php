@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\PresentationGuideline;
 use App\Models\LandingSetting;
+use App\Support\LandingLayoutData;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 
@@ -19,7 +20,14 @@ class PresentationGuidelineController extends Controller
 
         $guideline = PresentationGuideline::where('year', $selectedYear)->first();
 
-        return view('landingpage.submission.presentation', compact('guideline', 'years', 'selectedYear'));
+        return Inertia::render('Landing/Submission/PresentationGuideline', array_merge(LandingLayoutData::props(), [
+            'guideline' => $guideline ? [
+                'content' => $guideline->content,
+                'pdf_file' => $guideline->pdf_file,
+                'year' => $guideline->year,
+            ] : null,
+            'selectedYear' => $selectedYear,
+        ]));
     }
 
     public function index()

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Landing;
 use App\Http\Controllers\Controller;
 use App\Models\ConferenceDetail;
 use App\Models\ConferenceProgram;
+use App\Support\LandingLayoutData;
 use Illuminate\Http\Request;
 use App\Models\LandingSetting;
 use Inertia\Inertia;
@@ -18,16 +19,31 @@ class ConferenceProgramController extends Controller
         $years = LandingSetting::orderBy('year', 'desc')->pluck('year');
         $selectedYear = $year ?? $activeYear ?? ($years->isNotEmpty() ? $years->first() : date('Y'));
 
-        $conferences = ConferenceDetail::where('year', $selectedYear)->get();
+        $conference = ConferenceDetail::where('year', $selectedYear)
+            ->orderBy('id')
+            ->first(['title', 'theme', 'university', 'hosted', 'date']);
         $programs = ConferenceProgram::where('year', $selectedYear)
             ->orderBy('day_number')
             ->orderBy('start_time')
             ->get();
-        $programsByDay = $programs->groupBy('day_number');
-        $dates = $programsByDay->map(function ($items) {
-            return $items->first()->date;
-        })->toArray();
-        return view('landingpage.conference.program', compact('conferences', 'programsByDay', 'years', 'selectedYear', 'dates'));
+        $days = $programs->groupBy('day_number')->map(fn ($items, $day) => [
+            'day' => (int) $day,
+            'date' => $items->first()->date,
+            'items' => $items->map(fn (ConferenceProgram $program) => $program->only([
+                'id',
+                'start_time',
+                'end_time',
+                'program_name',
+                'pic',
+            ]))->values(),
+        ])->values();
+
+        return Inertia::render('Landing/Program', array_merge(LandingLayoutData::props(), [
+            'conference' => $conference,
+            'days' => $days,
+            'years' => $years,
+            'selectedYear' => (int) $selectedYear,
+        ]));
     }
 
     public function index(Request $request)
