@@ -119,21 +119,30 @@ class LandingPageController extends Controller
 
     // Nilai role di database tidak seragam ("keynote_speaker" dan "Keynote Speaker"),
     // jadi kedua bentuk diterima, sama seperti beranda ICASVE.
-    private function speakerProps(int $year): array
-    {
-        $fields = ['id', 'name', 'institution', 'image', 'country', 'session_topic', 'await_confirmation'];
+   private function speakerProps(int $year): array
+{
+    $fields = [
+        'id',
+        'name',
+        'institution',
+        'image',
+        'country',
+        'session_topic',
+        'await_confirmation',
+    ];
 
-        return [
-            'keynoteSpeakers' => Speaker::whereIn('role', ['keynote_speaker', 'Keynote Speaker'])
-                ->where('year', $year)
-                ->orderBy('id')
-                ->get($fields),
-            'invitedSpeakers' => Speaker::whereIn('role', ['invited_speaker', 'Invited Speaker'])
-                ->where('year', $year)
-                ->orderBy('id')
-                ->get($fields),
-        ];
-    }
+    return [
+        'keynoteSpeakers' => Speaker::whereIn('role', ['keynote_speaker', 'Keynote Speaker'])
+            ->where('year', $year)
+            ->orderBy('id')
+            ->get($fields),
+
+        'invitedSpeakers' => Speaker::whereIn('role', ['invited_speaker', 'Invited Speaker'])
+            ->where('year', $year)
+            ->orderBy('id')
+            ->get($fields),
+    ];
+}
 
    // TODO(sasa, task 03): themes.
     private function themeProps(int $year): array
