@@ -42,6 +42,8 @@ class LandingPagesTest extends TestCase
             'komite pengarah' => ['/committee/steering', 'Landing/Committee/Steering'],
             'komite reviewer' => ['/committee/reviewer', 'Landing/Committee/Reviewer'],
             'galeri' => ['/gallery', 'Landing/Gallery'],
+            'arsip' => ['/archives', 'Landing/Archives'],
+            'faq' => ['/faq', 'Landing/Faq'],
         ];
     }
 

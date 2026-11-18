@@ -3,45 +3,59 @@
 namespace App\Http\Controllers;
 
 use App\Models\AbstractModel;
+use App\Support\LandingLayoutData;
 use Illuminate\Http\Request;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Inertia\Inertia;
 
 class ArchiveController extends Controller
 {
     public function index(Request $request)
     {
-        // Ambil tahun-tahun unik dari abstrak yang diterima
+        return Inertia::render('Landing/Archives', array_merge(
+            LandingLayoutData::props(),
+            $this->archiveProps($request),
+        ));
+    }
+
+    public function show(Request $request, $year)
+    {
+        return Inertia::render('Landing/Archives', array_merge(
+            LandingLayoutData::props(),
+            $this->archiveProps($request, $year),
+        ));
+    }
+
+    // Tahun-tahun abstrak yang diterima dan daftar abstrak pada tahun terpilih.
+    // Halaman /archives/{year} memakai tahun dari URL, sedangkan /archives?year=
+    // memakai query string; tanpa keduanya dipakai tahun terbaru.
+    private function archiveProps(Request $request, $year = null): array
+    {
         $years = AbstractModel::where('status', 'accepted')
             ->selectRaw('YEAR(created_at) as year')
             ->distinct()
             ->orderByDesc('year')
-            ->pluck('year');
-    
-        // Ambil tahun yang dipilih atau tahun terbaru untuk default tampilan
-        $year = $request->input('year', $years->first());
-    
-        // Ambil data abstrak untuk tahun yang dipilih
-        $abstracts = AbstractModel::whereYear('created_at', $year)
-            ->where('status', 'accepted')
-            ->get();
+            ->pluck('year')
+            ->map(fn ($value) => (int) $value)
+            ->values();
 
-        $latestYear = AbstractModel::max('created_at');
-    
-        // Pass both years and the selected year to the view
-        return view('landingpage.archives.index', compact('years', 'year', 'abstracts', 'latestYear'));
-    }
-    
+        $requestedYear = $year !== null ? (int) $year : $request->input('year');
+        $selectedYear = $requestedYear !== null && $requestedYear !== ''
+            ? (int) $requestedYear
+            : $years->first();
 
+        $abstracts = $selectedYear
+            ? AbstractModel::whereYear('created_at', $selectedYear)
+                ->where('status', 'accepted')
+                ->orderBy('title')
+                ->get(['id', 'title', 'authors', 'presentation_type'])
+            : collect();
 
-    public function show(Request $request, $year)
-    {
-        // Ambil data abstrak berdasarkan tahun yang dipilih
-        $abstracts = AbstractModel::whereYear('created_at', $year)
-            ->where('status', 'accepted')
-            ->get();
-
-        // Kembalikan data ke view utama dengan parameter tahun
-        return view('landingpage.archives.index', compact('year', 'abstracts'));
+        return [
+            'years' => $years,
+            'selectedYear' => $selectedYear ?: null,
+            'abstracts' => $abstracts,
+        ];
     }
 
     private function formatAuthors($authors)
