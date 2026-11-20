@@ -10,13 +10,38 @@ use App\Models\PresentationType;
 use App\Models\Sdg;
 use App\Models\ConferenceSetting;
 use App\Models\Year;
+use Database\Seeders\DeploySeeder;
 use Illuminate\Support\Facades\Hash;
 
 class RbacSecurityAuditTest extends TestCase
 {
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        $this->seed(DeploySeeder::class);
+
+        $roles = [
+            'admin' => 'Admin',
+            'editor' => 'Editor',
+            'reviewer' => 'Reviewer',
+            'presenter' => 'Presenter',
+            'executive' => 'Executive',
+        ];
+
+        foreach ($roles as $role => $name) {
+            $user = User::firstOrCreate(
+                ['email' => $role . '@app.test'],
+                ['name' => $name, 'password' => 'password']
+            );
+            $user->syncRoles([$role]);
+            $user->flushCache();
+        }
+    }
+
     private function getUser(string $role): User
     {
-        return User::whereHas('roles', fn($q) => $q->where('name', $role))->firstOrFail();
+        return User::where('email', $role . '@app.test')->firstOrFail();
     }
 
     /**
