@@ -1,5 +1,8 @@
 /.phpunit.cache
 /node_modules
+/playwright-report
+/test-results
+/blob-report
 /public/build
 /public/hot
 /public/storage
@@ -28,3 +31,5 @@ yarn-error.log
 /issue/
 issue-*.md
 .DS_Store
+/docs/plan/
+/landingpage_SND_fix.html

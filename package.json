@@ -3,7 +3,8 @@
     "type": "module",
     "scripts": {
         "build": "vite build",
-        "dev": "vite"
+        "dev": "vite",
+        "test:e2e": "playwright test"
     },
     "dependencies": {
         "@iconify/react": "^6.0.2",
@@ -30,6 +31,7 @@
         "tailwind-merge": "^3.6.0"
     },
     "devDependencies": {
+        "@playwright/test": "^1.65.1",
         "@tailwindcss/postcss": "^4.3.0",
         "@vitejs/plugin-react": "^4.7.0",
         "@vitejs/plugin-vue": "^5.2.1",

@@ -1,31 +1,31 @@
-<x-guest-layout>
-    <div class="mb-4 text-sm text-gray-600">
-        {{ __('Thanks for signing up! Before getting started, could you verify your email address by clicking on the link we just emailed to you? If you didn\'t receive the email, we will gladly send you another.') }}
-    </div>
+<!DOCTYPE html>
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Verify Email</title>
+</head>
+<body>
+    <main>
+        <h1>Verify your email address</h1>
+        <p>
+            Thanks for signing up! Before getting started, please verify your email address by clicking
+            the link we just emailed to you. If you did not receive the email, we can send you another.
+        </p>
 
-    @if (session('status') == 'verification-link-sent')
-        <div class="mb-4 font-medium text-sm text-green-600">
-            {{ __('A new verification link has been sent to the email address you provided during registration.') }}
-        </div>
-    @endif
+        @if (session('status') == 'verification-link-sent')
+            <p>A new verification link has been sent to the email address you provided during registration.</p>
+        @endif
 
-    <div class="mt-4 flex items-center justify-between">
         <form method="POST" action="{{ route('verification.send') }}">
             @csrf
-
-            <div>
-                <x-primary-button>
-                    {{ __('Resend Verification Email') }}
-                </x-primary-button>
-            </div>
+            <button type="submit">Resend Verification Email</button>
         </form>
 
         <form method="POST" action="{{ route('logout') }}">
             @csrf
-
-            <button type="submit" class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                {{ __('Log Out') }}
-            </button>
+            <button type="submit">Log Out</button>
         </form>
-    </div>
-</x-guest-layout>
+    </main>
+</body>
+</html>

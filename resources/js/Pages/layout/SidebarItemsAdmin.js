@@ -89,6 +89,7 @@ const SidebarContentAdmin = [
         heading: 'SETTINGS',
         children: [
           { name: 'Setting',                icon: 'solar:settings-outline',   id: uniqueId(), url: '/admin/settings' },
+          { name: 'Users & RBAC',           icon: 'solar:shield-keyhole-outline', id: uniqueId(), url: '/admin/rbac/users' },
           { name: 'Edit Email Template',    icon: 'solar:mailbox-outline',    id: uniqueId(), url: '/admin/email-template' },
           { name: 'Regenerate Certificate', icon: 'solar:refresh-outline',    id: uniqueId(), url: '/admin/regenerate-certificate' },
         ],
